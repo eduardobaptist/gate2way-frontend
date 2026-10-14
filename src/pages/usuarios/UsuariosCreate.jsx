@@ -203,6 +203,9 @@ export const UsuariosCreate = () => {
       const response = await api.post("/usuarios", {
         ...data,
         telefone: data.telefone?.replace(/\D/g, ""),
+        // O vinculo nao selecionado e null; zero nao e um ID valido.
+        empresa_id: data.tipo === "empresa" ? data.empresa_id : null,
+        ict_id: data.tipo === "ict" ? data.ict_id : null,
       });
 
       toast({

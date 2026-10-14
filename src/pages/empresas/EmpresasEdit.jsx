@@ -35,7 +35,8 @@ import { UFComboBox } from "@/components/UFComboBox";
 import { CidadeCombobox } from "@/components/CidadeComboBox";
 
 const getPhoneMask = (value) => {
-  const digits = value.replace(/\D/g, "");
+  // O banco permite telefone null; normalizar evita erro ao carregar a edicao.
+  const digits = (value || "").replace(/\D/g, "");
   if (
     digits.length === 11 ||
     (digits.length >= 3 && digits.charAt(2) === "9")
@@ -139,7 +140,7 @@ export const EmpresasEdit = () => {
           uf: empresa.uf || "",
           cidade: empresa.cidade || "",
           area: empresa.area,
-          telefone: empresa.telefone,
+          telefone: empresa.telefone ?? "",
           site: empresa.site,
           foto_perfil: null,
         });
@@ -170,7 +171,7 @@ export const EmpresasEdit = () => {
       formData.append("uf", data.uf);
       formData.append("cidade", data.cidade);
       formData.append("area", data.area);
-      formData.append("telefone", data.telefone.replace(/\D/g, ""));
+      formData.append("telefone", (data.telefone || "").replace(/\D/g, ""));
       formData.append("site", data.site);
 
       if (data.foto_perfil && data.foto_perfil.length > 0) {
