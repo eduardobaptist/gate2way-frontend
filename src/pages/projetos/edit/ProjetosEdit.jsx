@@ -30,6 +30,8 @@ import {
 
 export const ProjetosEdit = () => {
   const { id } = useParams();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const submittingRef = useRef(false);
   const [layout, setLayout] = useState("infosGerais");
   const [canvasData, setCanvasData] = useState(null);
   const [projectCanvasInitialData, setProjectCanvasInitialData] = useState(undefined);
@@ -84,42 +86,46 @@ export const ProjetosEdit = () => {
   }, []);
 
   const handleSave = useCallback(() => {
-    if (projectFormRef.current) {
+    if (!isSubmitting && !submittingRef.current && projectFormRef.current) {
       projectFormRef.current.requestSubmit();
     }
-  }, []);
+  }, [isSubmitting]);
 
   const onSubmit = useCallback(
     async (formData) => {
+      // Bloqueia envios repetidos antes de o React atualizar os botoes.
+      if (submittingRef.current) return;
+      submittingRef.current = true;
+      setIsSubmitting(true);
       try {
 
         formData.append(
           "justificativas",
-          canvasData["justificativas"]?.textarea_value
+          canvasData?.["justificativas"]?.textarea_value ?? ""
         );
-        formData.append("objsmart", canvasData["objsmart"]?.textarea_value);
-        formData.append("beneficios", canvasData["beneficios"]?.textarea_value);
-        formData.append("produto", canvasData["produto"]?.textarea_value);
-        formData.append("requisitos", canvasData["requisitos"]?.textarea_value);
+        formData.append("objsmart", canvasData?.["objsmart"]?.textarea_value ?? "");
+        formData.append("beneficios", canvasData?.["beneficios"]?.textarea_value ?? "");
+        formData.append("produto", canvasData?.["produto"]?.textarea_value ?? "");
+        formData.append("requisitos", canvasData?.["requisitos"]?.textarea_value ?? "");
         formData.append(
           "stakeholders",
-          canvasData["stakeholders"]?.textarea_value
+          canvasData?.["stakeholders"]?.textarea_value ?? ""
         );
-        formData.append("equipe", canvasData["equipe"]?.textarea_value);
-        formData.append("premissas", canvasData["premissas"]?.textarea_value);
+        formData.append("equipe", canvasData?.["equipe"]?.textarea_value ?? "");
+        formData.append("premissas", canvasData?.["premissas"]?.textarea_value ?? "");
         formData.append(
           "grupo_de_entrega",
-          canvasData["grupo_de_entrega"]?.textarea_value
+          canvasData?.["grupo_de_entrega"]?.textarea_value ?? ""
         );
-        formData.append("restricoes", canvasData["restricoes"]?.textarea_value);
-        formData.append("riscos", canvasData["riscos"]?.textarea_value);
+        formData.append("restricoes", canvasData?.["restricoes"]?.textarea_value ?? "");
+        formData.append("riscos", canvasData?.["riscos"]?.textarea_value ?? "");
         formData.append(
           "linha_do_tempo",
-          canvasData["linha_do_tempo"]?.textarea_value
+          canvasData?.["linha_do_tempo"]?.textarea_value ?? ""
         );
-        formData.append("custos", canvasData["custos"]?.textarea_value);
+        formData.append("custos", canvasData?.["custos"]?.textarea_value ?? "");
         
-        const cleanCanvasData = Object.entries(canvasData).reduce(
+        const cleanCanvasData = Object.entries(canvasData || {}).reduce(
           (acc, [key, widget]) => {
             acc[key] = {
               x: widget.x,
@@ -156,6 +162,9 @@ export const ProjetosEdit = () => {
           title: errorMessage,
           variant: "destructive",
         });
+      } finally {
+        submittingRef.current = false;
+        setIsSubmitting(false);
       }
     },
     [canvasData, id, navigate, toast]
@@ -199,9 +208,10 @@ export const ProjetosEdit = () => {
               className="bg-green-500 text-white font-bold hover:text-white hover:bg-green-600"
               variant="outline"
               onClick={handleSave}
+              disabled={isSubmitting}
             >
               <CheckCircleIcon className="mr-2" size="20" />
-              Salvar
+              {isSubmitting ? "Salvando..." : "Salvar"}
             </Button>
           </div>
           <div>
@@ -274,9 +284,10 @@ export const ProjetosEdit = () => {
             className="bg-green-500 text-white font-bold hover:text-white hover:bg-green-600"
             variant="outline"
             onClick={handleSave}
+            disabled={isSubmitting}
           >
             <CheckCircleIcon className="mr-2" size="20" />
-            Salvar
+            {isSubmitting ? "Salvando..." : "Salvar"}
           </Button>
         </div>
       )}
@@ -285,6 +296,7 @@ export const ProjetosEdit = () => {
           <ProjetosForm
             ref={projectFormRef}
             onSubmit={onSubmit}
+            isSubmitting={isSubmitting}
             formData={projectData}
           />
         </div>

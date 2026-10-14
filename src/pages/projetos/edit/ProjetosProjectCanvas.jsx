@@ -88,7 +88,7 @@ export const ProjetosProjectCanvas = ({ setCanvasData, initialData }) => {
         y: 3,
         w: 2,
         h: 3,
-        content: "Objetivo Smart",
+        content: "Objetivo SMART",
         bg: "bg-yellow-200",
         bg_header: "bg-yellow-100",
       },
@@ -128,7 +128,7 @@ export const ProjetosProjectCanvas = ({ setCanvasData, initialData }) => {
         y: 0,
         w: 2,
         h: 3,
-        content: "Stakeholders",
+        content: "Partes interessadas",
         bg: "bg-pink-200",
         bg_header: "bg-pink-100",
       },
@@ -227,6 +227,7 @@ export const ProjetosProjectCanvas = ({ setCanvasData, initialData }) => {
     grid.on("change", saveCanvasData);
 
     // Renderiza todos os widgets
+    // UX Gate2Way: blocos editáveis recebem instrução e nome acessível, além da cor.
     items.forEach(({ x, y, w, h, content, id, bg, bg_header }) => {
       const savedWidget = initialData?.[id];
       
@@ -246,10 +247,10 @@ export const ProjetosProjectCanvas = ({ setCanvasData, initialData }) => {
         h: finalH,
         content: `
           <div class="grid-stack-item-content ${bg} rounded-lg shadow-md hover:shadow-lg transition-all duration-300 flex flex-col h-full">
-            <div class="w-full grid-stack-item-mover ${bg_header} text-gray-600 px-4 py-2 cursor-move flex justify-between">
-              <span>${content}</span>
+            <div class="w-full grid-stack-item-mover ${bg_header} text-gray-800 font-semibold px-1 lg:px-2 py-2 cursor-default flex justify-between">
+              <span class="min-w-0 w-full text-xs lg:text-sm leading-snug break-words" title="${content}">${content}</span>
             </div>
-            <textarea class="w-full h-full resize-none outline-none px-4 py-2 ${bg} text-gray-800 rounded-lg" id="${id}">${textareaValue}</textarea>
+            <textarea class="w-full h-full resize-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-blue-700 text-sm placeholder:text-slate-600 px-2 py-2 ${bg} text-gray-800 rounded-lg" aria-label="${content}" placeholder="Escreva aqui..." id="${id}">${textareaValue}</textarea>
           </div>`,
       });
     });
@@ -269,6 +270,8 @@ export const ProjetosProjectCanvas = ({ setCanvasData, initialData }) => {
   }, [grid, initialData, widgetsLoaded, saveCanvasData]);
 
   return (
+    <>
+      <p className="mb-3 text-sm text-slate-700">Clique em um bloco para escrever. As alterações serão gravadas ao salvar o projeto.</p>
     <div
       ref={gridRef}
       className="grid-stack bg-muted/40 border rounded-lg w-full p-3"
@@ -278,5 +281,6 @@ export const ProjetosProjectCanvas = ({ setCanvasData, initialData }) => {
         overflow: 'auto'
       }}
     ></div>
+    </>
   );
 };
