@@ -1,3 +1,4 @@
+import { OrganizationLogo } from "@/components/OrganizationLogo";
 import { MainWrapper } from "@/components/MainWrapper";
 import { useState, useEffect } from "react";
 import {
@@ -17,7 +18,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Search, PlusCircle, Filter, Loader2, ImageOff } from "lucide-react";
+import { Search, PlusCircle, Filter, Loader2 } from "lucide-react";
 import { IctsActions } from "./IctsActions";
 import { Link } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
@@ -195,19 +196,7 @@ export const IctsList = () => {
                       <IctsActions ict={ict} onRefresh={fetchIcts} />
                     </TableCell>
                     <TableCell className="flex items-center gap-2">
-                      <span className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 border p-1 flex items-center justify-center">
-                        {ict?.foto_perfil ? (
-                          <img
-                            src={`${import.meta.env.VITE_API_URL}${
-                              ict?.foto_perfil
-                            }`}
-                            alt="Foto ict"
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <ImageOff className="w-4 h-4 text-muted-foreground" />
-                        )}
-                      </span>
+                      <OrganizationLogo src={ict.foto_perfil ? `${import.meta.env.VITE_API_URL}${ict.foto_perfil}` : null} name={ict.nome} className="h-8 w-8 rounded-full border p-1" />
                       <span>{ict.nome}</span>
                     </TableCell>
                     <TableCell>{ict.email || "-"}</TableCell>

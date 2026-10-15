@@ -1,3 +1,4 @@
+import { OrganizationLogo } from "@/components/OrganizationLogo";
 import { MainWrapper } from "@/components/MainWrapper";
 import { useState, useEffect } from "react";
 import {
@@ -16,7 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Search, Filter, Loader2, ImageOff, ExternalLink } from "lucide-react";
+import { Search, Filter, Loader2, ExternalLink } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { formatDatetime } from "@/lib/utils";
 import { Link } from "react-router-dom";
@@ -30,7 +31,10 @@ export const ParceriasList = () => {
   const [error, setError] = useState(null);
 
   const filters = [
-    { value: "proposta", label: "Proposta" },
+    { value: "proposta", label: "Projeto" },
+    { value: "empresa", label: "Empresa" },
+    { value: "responsavel", label: "Responsável da ICT" },
+    { value: "email", label: "E-mail do responsável" },
     { value: "ict", label: "ICT" },
     { value: "dataCricao", label: "Data de criação" },
   ];
@@ -58,20 +62,30 @@ export const ParceriasList = () => {
     fetchParcerias();
   }, []);
 
+  // A busca usa apenas a data; a célula mantém também o horário.
+  const formatDataCriacao = (dateValue) => {
+    if (!dateValue || Number.isNaN(new Date(dateValue).getTime())) return "—";
+    return formatDatetime(dateValue);
+  };
+
   const filteredParcerias = (parcerias || []).filter((parceria) => {
     if (!searchTerm) return true;
 
     const searchLower = searchTerm.toLowerCase();
+    // UX Gate2Way: os filtros consultam os relacionamentos que a API já retorna.
     switch (filterType) {
-      case "perceria":
-        return perceria.nome.toLowerCase().includes(searchLower);
+      case "proposta":
+        return parceria.Interesse?.Oferta?.Projeto?.nome?.toLowerCase().includes(searchLower);
+      case "empresa":
+        return parceria.Interesse?.Oferta?.Projeto?.Programa?.Rota?.Empresa?.nome?.toLowerCase().includes(searchLower);
       case "ict":
-        return perceria.descricao.toLowerCase().includes(searchLower);
+        return parceria.Interesse?.Usuario?.Responsavels?.[0]?.Ict?.nome?.toLowerCase().includes(searchLower);
+      case "responsavel":
+        return parceria.Interesse?.Usuario?.nome?.toLowerCase().includes(searchLower);
+      case "email":
+        return parceria.Interesse?.Usuario?.email?.toLowerCase().includes(searchLower);
       case "dataCricao":
-        return new Date(perceria.createdAt)
-          .toLocaleDateString()
-          .toLowerCase()
-          .includes(searchLower);
+        return formatDataCriacao(parceria.createdAt).split(" às ")[0].includes(searchLower);
       default:
         return true;
     }
@@ -82,10 +96,10 @@ export const ParceriasList = () => {
       <div className="grid grid-cols-2 gap-3">
         <div className="flex col-span-2 md:col-span-1">
           <Select
-            defaultValue="parceria"
+            value={filterType}
             onValueChange={(value) => setFilterType(value)}
           >
-            <SelectTrigger className="w-max rounded-r-none border-r-0">
+            <SelectTrigger aria-label="Campo de busca" className="w-max rounded-r-none border-r-0">
               <SelectValue>
                 <div className="flex items-center">
                   <Filter className="mr-2 h-4 w-4" />
@@ -108,6 +122,7 @@ export const ParceriasList = () => {
               <Input
                 type="text"
                 placeholder="Buscar"
+                aria-label="Buscar parcerias"
                 className="rounded-l-none pl-3"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -134,7 +149,7 @@ export const ParceriasList = () => {
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8">
+                  <TableCell colSpan={6} className="text-center py-8">
                     <div className="flex items-center justify-center">
                       <Loader2 className="h-6 w-6 animate-spin mr-2" />
                       Carregando parcerias...
@@ -144,7 +159,7 @@ export const ParceriasList = () => {
               ) : error ? (
                 <TableRow>
                   <TableCell
-                    colSpan={7}
+                    colSpan={6}
                     className="text-center py-8 text-red-500"
                   >
                     {error}
@@ -153,7 +168,7 @@ export const ParceriasList = () => {
               ) : filteredParcerias.length === 0 ? (
                 <TableRow>
                   <TableCell
-                    colSpan={7}
+                    colSpan={6}
                     className="text-center py-8 text-gray-500"
                   >
                     Nenhuma parceria encontrada.
@@ -165,60 +180,36 @@ export const ParceriasList = () => {
                     <TableCell>
                       <div className="max-w-md relative group">
                         <div className="flex items-center truncate group-hover:whitespace-normal transition-all duration-300 ease-in-out hover:scale-100 opacity-90 hover:opacity-100">
-                          <Link
-                            to={`/projetos/${parceria.Interesse?.Oferta?.Projeto?.id}`}
-                            className="text-blue-700 hover:underline"
-                          >
-                            {parceria.Interesse?.Oferta?.Projeto?.nome}
-                            <ExternalLink className="inline-block ml-2 h-4 w-4" />
-                          </Link>
+                          {parceria.Interesse?.Oferta?.Projeto?.id ? (
+                            <Link
+                              to={`/projetos/${parceria.Interesse?.Oferta?.Projeto?.id}`}
+                              className="text-blue-700 hover:underline"
+                            >
+                              {parceria.Interesse?.Oferta?.Projeto?.nome || "—"}
+                              <ExternalLink className="inline-block ml-2 h-4 w-4" />
+                            </Link>
+                          ) : (parceria.Interesse?.Oferta?.Projeto?.nome || "—")}
                         </div>
                       </div>
                     </TableCell>
                     <TableCell>
                       <div className="max-w-md relative flex items-center group">
-                        <span className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 border p-1 mr-2 flex items-center justify-center">
-                          {parceria.Interesse?.Oferta?.Projeto?.Programa?.Rota
-                            .Empresa?.foto_perfil ? (
-                            <img
-                              src={`${import.meta.env.VITE_API_URL}${
-                                parceria.Interesse?.Oferta?.Projeto?.Programa
-                                  ?.Rota?.Empresa?.foto_perfil
-                              }`}
-                              className="w-full h-full object-contain"
-                            />
-                          ) : (
-                            <ImageOff className="w-4 h-4 text-muted-foreground" />
-                          )}
-                        </span>
+                        <OrganizationLogo src={parceria.Interesse?.Oferta?.Projeto?.Programa?.Rota?.Empresa?.foto_perfil ? `${import.meta.env.VITE_API_URL}${parceria.Interesse.Oferta.Projeto.Programa.Rota.Empresa.foto_perfil}` : null} name={parceria.Interesse?.Oferta?.Projeto?.Programa?.Rota?.Empresa?.nome} className="mr-2 rounded-full border p-1" />
                         <div className="truncate group-hover:whitespace-normal transition-all duration-300 ease-in-out hover:scale-100 opacity-90 hover:opacity-100">
                           {
                             parceria.Interesse?.Oferta?.Projeto?.Programa?.Rota
-                              ?.Empresa?.nome
+                              ?.Empresa?.nome || "—"
                           }
                         </div>
                       </div>
                     </TableCell>
                     <TableCell>
                       <div className="max-w-md relative flex items-center group">
-                        <span className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 border p-1 mr-2 flex items-center justify-center">
-                          {parceria.Interesse?.Usuario?.Responsavels[0]?.Ict
-                            ?.foto_perfil ? (
-                            <img
-                              src={`${import.meta.env.VITE_API_URL}${
-                                parceria.Interesse?.Usuario?.Responsavels[0]
-                                  ?.Ict?.foto_perfil
-                              }`}
-                              className="w-full h-full object-contain"
-                            />
-                          ) : (
-                            <Image />
-                          )}
-                        </span>
+                        <OrganizationLogo src={parceria.Interesse?.Usuario?.Responsavels?.[0]?.Ict?.foto_perfil ? `${import.meta.env.VITE_API_URL}${parceria.Interesse.Usuario.Responsavels?.[0].Ict.foto_perfil}` : null} name={parceria.Interesse?.Usuario?.Responsavels?.[0]?.Ict?.nome} className="mr-2 rounded-full border p-1" />
                         <div className="truncate group-hover:whitespace-normal transition-all duration-300 ease-in-out hover:scale-100 opacity-90 hover:opacity-100">
                           {
-                            parceria.Interesse?.Usuario?.Responsavels[0]?.Ict
-                              ?.nome
+                            parceria.Interesse?.Usuario?.Responsavels?.[0]?.Ict
+                              ?.nome || "—"
                           }
                         </div>
                       </div>
@@ -226,19 +217,19 @@ export const ParceriasList = () => {
                     <TableCell>
                       <div className="max-w-md relative group">
                         <div className="truncate group-hover:whitespace-normal transition-all duration-300 ease-in-out hover:scale-100 opacity-90 hover:opacity-100">
-                          {parceria.Interesse?.Usuario?.nome}
+                          {parceria.Interesse?.Usuario?.nome || "—"}
                         </div>
                       </div>
                     </TableCell>
                     <TableCell>
                       <div className="max-w-md relative group">
                         <div className="truncate group-hover:whitespace-normal transition-all duration-300 ease-in-out hover:scale-100 opacity-90 hover:opacity-100">
-                          {parceria.Interesse?.Usuario?.email}
+                          {parceria.Interesse?.Usuario?.email || "—"}
                         </div>
                       </div>
                     </TableCell>
                     <TableCell>
-                      {formatDatetime(parceria.createdAt) || "-"}
+                      {formatDataCriacao(parceria.createdAt)}
                     </TableCell>
                   </TableRow>
                 ))
