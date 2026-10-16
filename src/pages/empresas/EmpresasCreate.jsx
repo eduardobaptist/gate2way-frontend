@@ -122,7 +122,8 @@ export const EmpresasCreate = () => {
       formData.append("uf", data.uf);
       formData.append("cidade", data.cidade);
       formData.append("area", data.area);
-      formData.append("telefone", data.telefone.replace(/\D/g, ""));
+      // Telefone e opcional; nao chamar replace() em um valor ausente.
+      formData.append("telefone", (data.telefone || "").replace(/\D/g, ""));
       formData.append("site", data.site);
 
       if (data.foto_perfil && data.foto_perfil.length > 0) {

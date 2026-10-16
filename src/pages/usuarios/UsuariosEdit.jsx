@@ -30,6 +30,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription,
 } from "@/components/ui/form";
 
 import { toast } from "@/hooks/use-toast";
@@ -49,10 +50,11 @@ const usuarioFormSchema = z.object({
     .min(1, "Email é obrigatório")
     .max(255, "Email não deve exceder 255 caracteres")
     .email("Email inválido"),
+  // Na edicao, senha vazia preserva a senha existente.
   senha: z
     .string()
-    .min(1, "Insira a senha do usuário")
-    .max(20, "Senha não deve exceder os 20 caracteres"),
+    .max(20, "Senha não deve exceder os 20 caracteres")
+    .optional(),
   endereco: z.string().optional(),
   telefone: z
     .string()
@@ -74,7 +76,8 @@ export const UsuariosEdit = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const getPhoneMask = (value) => {
-    const digits = value.replace(/\D/g, "");
+    // Registros com telefone null usam a mesma mascara de um campo vazio.
+    const digits = (value || "").replace(/\D/g, "");
     if (
       digits.length === 11 ||
       (digits.length >= 3 && digits.charAt(2) === "9")
@@ -122,7 +125,7 @@ export const UsuariosEdit = () => {
         form.reset({
           nome: usuario.nome,
           email: usuario.email,
-          telefone: usuario.telefone,
+          telefone: usuario.telefone ?? "",
           senha: "",
         });
       } catch (error) {
@@ -143,11 +146,15 @@ export const UsuariosEdit = () => {
   const handleSubmit = async (data) => {
     setIsSubmitting(true);
     try {
+      // Omitir senha vazia tambem preserva o hash na API que ainda nao trata esse caso.
+      const { senha, ...dadosUsuario } = data;
       const response = await api.put(`/usuarios/${id}`, {
-        ...data,
+        ...dadosUsuario,
+        ...(senha ? { senha } : {}),
         telefone: data.telefone?.replace(/\D/g, ""),
-        ict_id: usuarioState.ict_id,
-        empresa_id: usuarioState.empresa_id,
+        // A API retorna os vinculos em Responsavels, e nao na raiz do usuario.
+        ict_id: usuarioState?.Responsavels?.[0]?.ict_id,
+        empresa_id: usuarioState?.Responsavels?.[0]?.empresa_id,
         tipo: usuarioState.tipo,
       });
 
@@ -267,7 +274,7 @@ export const UsuariosEdit = () => {
                 render={({ field }) => (
                   <FormItem className="relative col-span-2 md:col-span-1">
                     <FormLabel>
-                      Senha <RequiredFieldSpan />
+                      Senha
                     </FormLabel>
                     <div className="relative">
                       <Input
@@ -287,6 +294,7 @@ export const UsuariosEdit = () => {
                         )}
                       </button>
                     </div>
+                    <FormDescription>Deixe em branco para manter a senha atual. Uma nova senha pode ter até 20 caracteres.</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}

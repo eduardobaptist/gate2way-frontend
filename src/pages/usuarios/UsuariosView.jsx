@@ -15,7 +15,8 @@ export const UsuariosView = () => {
   const navigate = useNavigate();
 
   const formatPhone = (phone) => {
-    const digits = phone.replace(/\D/g, "");
+    // Telefone pode ser null no banco; a string vazia evita erro em replace().
+    const digits = (phone || "").replace(/\D/g, "");
 
     if (digits.length === 11) {
       return digits.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3");
