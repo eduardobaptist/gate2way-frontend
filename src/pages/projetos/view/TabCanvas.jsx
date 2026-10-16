@@ -63,7 +63,7 @@ export const TabCanvas = ({ initialData }) => {
         y: 3,
         w: 2,
         h: 3,
-        content: "Objetivo Smart",
+        content: "Objetivo SMART",
         bg: "bg-yellow-200",
         bg_header: "bg-yellow-100",
       },
@@ -103,7 +103,7 @@ export const TabCanvas = ({ initialData }) => {
         y: 0,
         w: 2,
         h: 3,
-        content: "Stakeholders",
+        content: "Partes interessadas",
         bg: "bg-pink-200",
         bg_header: "bg-pink-100",
       },
@@ -206,12 +206,12 @@ export const TabCanvas = ({ initialData }) => {
         h: finalH,
         content: `
           <div class="grid-stack-item-content ${bg} rounded-lg shadow-md transition-all duration-300 flex flex-col h-full">
-            <div class="w-full ${bg_header} text-gray-600 px-4 py-2 flex justify-between">
-              <span class="font-medium">${content}</span>
+            <div class="w-full ${bg_header} text-gray-800 px-1 lg:px-2 py-2 flex justify-between">
+              <span class="min-w-0 w-full break-words text-xs lg:text-sm leading-snug font-semibold" title="${content}">${content}</span>
             </div>
-            <div class="w-full h-full px-4 py-2 ${bg} text-gray-800 rounded-lg overflow-auto whitespace-pre-wrap break-words">${
+            <div class="w-full h-full px-2 py-2 text-sm ${bg} text-gray-800 rounded-lg overflow-auto whitespace-pre-wrap break-words">${
           textareaValue ||
-          '<span class="text-gray-400 italic">Sem informações</span>'
+          '<span class="text-slate-600 italic">Sem informações</span>'
         }</div>
           </div>`,
       });
@@ -225,10 +225,10 @@ export const TabCanvas = ({ initialData }) => {
     <section>
       <div className="mb-6">
         <h2 className="text-2xl font-semibold text-foreground">
-          Canvas do pojeto
+          Canvas do projeto
         </h2>
         <p className="text-sm text-muted-foreground mt-0">
-          Overview visual do projeto
+          Visão geral do projeto. Para alterar os blocos, acesse a edição do projeto.
         </p>
       </div>
       <div

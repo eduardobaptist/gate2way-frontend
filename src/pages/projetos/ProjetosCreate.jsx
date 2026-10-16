@@ -24,6 +24,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 
 export const ProjetosCreate = () => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const submittingRef = useRef(false);
   const [layout, setLayout] = useState("infosGerais");
   const projectFormRef = useRef(null);
   const isMobile = useIsMobile();
@@ -33,56 +35,68 @@ export const ProjetosCreate = () => {
   const navigate = useNavigate();
 
   const handleSave = useCallback(() => {
-    if (projectFormRef.current) {
+    if (!isSubmitting && !submittingRef.current && projectFormRef.current) {
       projectFormRef.current.requestSubmit();
     }
-  }, []);
+  }, [isSubmitting]);
 
   const onSubmit = useCallback(
     async (formData) => {
-      formData.append(
-        "justificativas",
-        canvasData["justificativas"]?.textarea_value
-      );
-      formData.append("objsmart", canvasData["objsmart"]?.textarea_value);
-      formData.append("beneficios", canvasData["beneficios"]?.textarea_value);
-      formData.append("produto", canvasData["produto"]?.textarea_value);
-      formData.append("requisitos", canvasData["requisitos"]?.textarea_value);
-      formData.append(
-        "stakeholders",
-        canvasData["stakeholders"]?.textarea_value
-      );
-      formData.append("equipe", canvasData["equipe"]?.textarea_value);
-      formData.append("premissas", canvasData["premissas"]?.textarea_value);
-      formData.append(
-        "grupo_de_entrega",
-        canvasData["grupo_de_entrega"]?.textarea_value
-      );
-      formData.append("restricoes", canvasData["restricoes"]?.textarea_value);
-      formData.append("riscos", canvasData["riscos"]?.textarea_value);
-      formData.append(
-        "linha_do_tempo",
-        canvasData["linha_do_tempo"]?.textarea_value
-      );
-      formData.append("custos", canvasData["custos"]?.textarea_value);
-      formData.append("estilo", JSON.stringify(canvasData));
+      // Bloqueia envios repetidos antes de o React atualizar os botoes.
+      if (submittingRef.current) return;
+      submittingRef.current = true;
+      // UX Gate2Way: mostra o envio e o erro; no mobile, o canvas pode não ter sido montado.
+      setIsSubmitting(true);
+      try {
+        formData.append(
+          "justificativas",
+          canvasData?.["justificativas"]?.textarea_value ?? ""
+        );
+        formData.append("objsmart", canvasData?.["objsmart"]?.textarea_value ?? "");
+        formData.append("beneficios", canvasData?.["beneficios"]?.textarea_value ?? "");
+        formData.append("produto", canvasData?.["produto"]?.textarea_value ?? "");
+        formData.append("requisitos", canvasData?.["requisitos"]?.textarea_value ?? "");
+        formData.append(
+          "stakeholders",
+          canvasData?.["stakeholders"]?.textarea_value ?? ""
+        );
+        formData.append("equipe", canvasData?.["equipe"]?.textarea_value ?? "");
+        formData.append("premissas", canvasData?.["premissas"]?.textarea_value ?? "");
+        formData.append(
+          "grupo_de_entrega",
+          canvasData?.["grupo_de_entrega"]?.textarea_value ?? ""
+        );
+        formData.append("restricoes", canvasData?.["restricoes"]?.textarea_value ?? "");
+        formData.append("riscos", canvasData?.["riscos"]?.textarea_value ?? "");
+        formData.append(
+          "linha_do_tempo",
+          canvasData?.["linha_do_tempo"]?.textarea_value ?? ""
+        );
+        formData.append("custos", canvasData?.["custos"]?.textarea_value ?? "");
+        formData.append("estilo", JSON.stringify(canvasData || {}));
 
-      console.log(JSON.stringify(formData))
+        console.log(JSON.stringify(formData))
 
-      const response = await api.post("/projetos", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+        const response = await api.post("/projetos", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
 
-      toast({
-        title: "Projeto criado com sucesso.",
-        variant: "success",
-      });
+        toast({
+          title: "Projeto criado com sucesso.",
+          variant: "success",
+        });
 
-      navigate("/projetos");
+        navigate("/projetos");
+      } catch (error) {
+        toast({ title: "Erro ao criar projeto", description: error.response?.data?.message || "Não foi possível salvar. Tente novamente.", variant: "destructive" });
+      } finally {
+        submittingRef.current = false;
+        setIsSubmitting(false);
+      }
     },
-    [canvasData]
+    [canvasData, navigate, toast]
   );
 
   return (
@@ -123,9 +137,10 @@ export const ProjetosCreate = () => {
               className="bg-green-500 text-white font-bold hover:text-white hover:bg-green-600"
               variant="outline"
               onClick={handleSave}
+              disabled={isSubmitting}
             >
               <CheckCircleIcon className="mr-2" size="20" />
-              Salvar
+              {isSubmitting ? "Salvando..." : "Salvar"}
             </Button>
           </div>
           <div>
@@ -195,15 +210,16 @@ export const ProjetosCreate = () => {
             className="bg-green-500 text-white font-bold hover:text-white hover:bg-green-600"
             variant="outline"
             onClick={handleSave}
+            disabled={isSubmitting}
           >
             <CheckCircleIcon className="mr-2" size="20" />
-            Salvar
+            {isSubmitting ? "Salvando..." : "Salvar"}
           </Button>
         </div>
       )}
       <div className="mt-5">
         <div style={{ display: layout === "infosGerais" ? "block" : "none" }}>
-          <ProjetosForm ref={projectFormRef} onSubmit={onSubmit} />
+          <ProjetosForm ref={projectFormRef} onSubmit={onSubmit} isSubmitting={isSubmitting} />
         </div>
         <div style={{ display: layout === "projectCanvas" ? "block" : "none" }}>
           {isMobile ? (

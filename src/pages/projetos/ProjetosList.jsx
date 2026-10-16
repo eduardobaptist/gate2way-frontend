@@ -51,6 +51,7 @@ import { useAuth } from "@/contexts/AuthContext";
 
 export const ProjetosList = () => {
   const [layout, setLayout] = useState("grid");
+  const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("nome");
   const [projetos, setProjetos] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -93,6 +94,18 @@ export const ProjetosList = () => {
     { value: "data", label: "Data" },
   ];
 
+  // UX Gate2Way: o filtro usa os mesmos dados nos cards e na tabela.
+  const filteredProjetos = projetos.filter((projeto) => {
+    const term = searchTerm.trim().toLocaleLowerCase("pt-BR");
+    if (!term) return true;
+    switch (filterType) {
+      case "empresa": return projeto.Programa?.Rota?.Empresa?.nome?.toLocaleLowerCase("pt-BR").includes(term);
+      case "status": return (projeto.status === "NÃO PÚBLICADO" ? "Rascunho" : projeto.status)?.toLocaleLowerCase("pt-BR").includes(term);
+      case "data": return formatDatetime(projeto.createdAt, false).includes(term);
+      default: return projeto.nome?.toLocaleLowerCase("pt-BR").includes(term);
+    }
+  });
+
   return (
     <MainWrapper title="Projetos">
       <div className="grid grid-cols-2 gap-3">
@@ -124,6 +137,9 @@ export const ProjetosList = () => {
               <Input
                 type="text"
                 placeholder="Buscar"
+                value={searchTerm}
+                onChange={(event) => setSearchTerm(event.target.value)}
+                aria-label="Buscar projetos"
                 className="rounded-l-none pl-3"
               />
             </div>
@@ -163,21 +179,22 @@ export const ProjetosList = () => {
       <div className="mt-5">
         {layout === "grid" ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-            {projetos.length > 0 ? (
-              projetos.map((projeto) => (
+            {filteredProjetos.length > 0 ? (
+              filteredProjetos.map((projeto) => (
                 <Card
                   key={projeto.id}
-                  className="w-full col-span-1 shadow-md flex flex-col relative transition-all duration-300 ease-in-out hover:shadow-xl hover:scale-[1.0] hover:z-10 cursor-pointer"
+                  className="w-full min-w-0 col-span-1 shadow-md flex flex-col relative transition-all duration-300 ease-in-out hover:shadow-xl hover:scale-[1.0] hover:z-10 cursor-pointer"
                   onClick={() => handleCardOnClick(projeto.id)}
                 >
                   {projeto.total_interesses &&
                     projeto.status === "PUBLICADO" &&
                     ["admin", "empresa"].includes(userTipo) ? (
                     <div className="absolute -top-2 -right-2 z-10">
-                      <Badge className="bg-red-500 text-white hover:bg-red-600 px-2 py-1 rounded-full border border-white shadow-md">
+                      <Badge title="Propostas pendentes de avaliação" className="bg-red-500 text-white hover:bg-red-600 px-2 py-1 rounded-full border border-white shadow-md">
                         {projeto.total_interesses <= 99
                           ? projeto.total_interesses
                           : "+99"}
+                        <span className="ml-1 text-xs">pendentes</span>
                       </Badge>
                     </div>
                   ) : null}
@@ -197,11 +214,12 @@ export const ProjetosList = () => {
                           )}
                         </span>
                         <div className="flex flex-col ml-2 overflow-hidden min-w-0">
-                          <span className="truncate tracking-tighter text-2xl font-semibold text-foreground">
-                            {projeto.nome}
+                          {/* Duas linhas mantem o titulo legivel; title apresenta o nome completo. */}
+                          <span title={projeto.nome || "—"} className="line-clamp-2 break-words tracking-tighter text-xl font-semibold text-foreground">
+                            {projeto.nome || "—"}
                           </span>
-                          <p className="text-sm font-semibold">
-                            {projeto?.Programa?.Rota?.Empresa?.nome}
+                          <p title={projeto.Programa?.Rota?.Empresa?.nome} className="truncate text-sm font-semibold">
+                            {projeto?.Programa?.Rota?.Empresa?.nome || "—"}
                           </p>
                         </div>
                       </div>
@@ -229,11 +247,11 @@ export const ProjetosList = () => {
                       )}
                     </div>
                     <CardDescription className="h-full">
-                      {projeto.descricao}
+                      {projeto.descricao || "—"}
                     </CardDescription>
                   </CardHeader>
                   <CardFooter className="border-t p-2 flex items-center mt-auto">
-                    <div className="flex justify-between items-center w-full">
+                    <div className="flex flex-wrap gap-2 justify-between items-center w-full">
                       <div className="flex items-center">
                         <Calendar
                           size={15}
@@ -243,13 +261,11 @@ export const ProjetosList = () => {
                           Criado em {formatDatetime(projeto.createdAt)}
                         </span>
                       </div>
-                      <DollarSign
-                        size={20}
-                        className={cn(
-                          projeto.impulso_id && "text-green-600",
-                          !projeto.impulso_id && "text-red-600"
-                        )}
-                      />
+                      {/* UX Gate2Way: o símbolo indica vínculo ao impulso, não valor ou pagamento. */}
+                      <span className="flex shrink-0 items-center gap-1 text-xs text-slate-700" title={projeto.impulso_id ? "Projeto vinculado a um impulso acadêmico" : "Projeto sem impulso acadêmico"}>
+                        <DollarSign size={18} aria-hidden="true" className={cn(projeto.impulso_id ? "text-green-600" : "text-red-600")} />
+                        {projeto.impulso_id ? "Com impulso" : "Sem impulso"}
+                      </span>
                     </div>
                   </CardFooter>
                 </Card>
@@ -320,7 +336,7 @@ export const ProjetosList = () => {
                       </div>
                     </TableCell>
                   </TableRow>
-                ) : projetos.length === 0 ? (
+                ) : filteredProjetos.length === 0 ? (
                   <TableRow>
                     <TableCell
                       colSpan={6}
@@ -330,8 +346,8 @@ export const ProjetosList = () => {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  projetos.map((projeto) => (
-                    <TableRow>
+                  filteredProjetos.map((projeto) => (
+                    <TableRow key={projeto.id}>
                       <TableCell>
                         <div className="relative">
                           <ProjetosActions
@@ -340,17 +356,17 @@ export const ProjetosList = () => {
                           />
                         </div>
                       </TableCell>
-                      <TableCell>{projeto.nome}</TableCell>
+                      <TableCell><span className="line-clamp-2 min-w-[180px] max-w-[280px]" title={projeto.nome}>{projeto.nome || "—"}</span></TableCell>
                       <TableCell>
                         <div className="max-w-md relative group">
                           <div className="truncate group-hover:whitespace-normal transition-all duration-300 ease-in-out hover:scale-100 opacity-90 hover:opacity-100">
-                            {projeto.descricao}
+                            {projeto.descricao || "—"}
                           </div>
                         </div>
                       </TableCell>
                       <TableCell>
                         <div className="truncate">
-                          {projeto?.Programa?.Rota?.Empresa?.nome}
+                          {projeto?.Programa?.Rota?.Empresa?.nome || "—"}
                         </div>
                       </TableCell>
                       <TableCell>
@@ -372,7 +388,7 @@ export const ProjetosList = () => {
                         )}
                       </TableCell>
                       <TableCell className="text-right">
-                        {projeto.impulso_id ? "Sim" : "Não"}
+                        {projeto.impulso_id ? "Com impulso" : "Sem impulso"}
                       </TableCell>
                     </TableRow>
                   ))

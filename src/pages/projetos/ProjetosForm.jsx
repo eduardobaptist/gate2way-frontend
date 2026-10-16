@@ -91,7 +91,7 @@ const projectFormSchema = z
     path: ["data_inicio"],
   });
 
-export const ProjetosForm = forwardRef(({ onSubmit }, ref) => {
+export const ProjetosForm = forwardRef(({ onSubmit, isSubmitting = false }, ref) => {
   const [programasOpen, setProgramasOpen] = useState(false);
   const [impulsosOpen, setImpulsosOpen] = useState(false);
   const [hasImpulso, setHasImpulso] = useState(false);
@@ -117,7 +117,7 @@ export const ProjetosForm = forwardRef(({ onSubmit }, ref) => {
   });
 
   const handleFormSubmit = (data) => {
-    if (onSubmit) {
+    if (!isSubmitting && onSubmit) {
 
       const formData = new FormData();
 
@@ -236,10 +236,10 @@ export const ProjetosForm = forwardRef(({ onSubmit }, ref) => {
       <form
         ref={ref}
         onSubmit={form.handleSubmit(handleFormSubmit)}
-        className="space-y-4"
+        className="mx-auto max-w-4xl space-y-4"
       >
         <div className="grid grid-cols-1 gap-4">
-          <fieldset className="space-y-4 p-4 bg-white rounded-md shadow-sm border border-gray-300 block">
+          <fieldset disabled={isSubmitting} className="space-y-4 p-4 bg-white rounded-md shadow-sm border border-gray-300 block">
             <legend className="text-md px-2 font-semibold text-gray-800 border-gray-200">
               Geral
             </legend>
@@ -575,7 +575,7 @@ export const ProjetosForm = forwardRef(({ onSubmit }, ref) => {
             </div>
           </fieldset>
 
-          <fieldset className="space-y-4 mt-5 p-4 bg-white rounded-md shadow-sm border border-gray-300 block">
+          <fieldset disabled={isSubmitting} className="space-y-4 mt-5 p-4 bg-white rounded-md shadow-sm border border-gray-300 block">
             <legend className="text-md px-2 font-semibold text-gray-800 border-gray-200">
               Métricas
             </legend>

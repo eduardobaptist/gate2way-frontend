@@ -5,8 +5,11 @@ export function cn(...inputs) {
   return twMerge(clsx(inputs));
 }
 
-export function formatDatetime(dateValue) {
+// UX Gate2Way: a tabela pode mostrar só a data e guardar o horário completo no title.
+export function formatDatetime(dateValue, includeTime = true) {
+  if (!dateValue) return "—";
   const dateObj = new Date(dateValue);
+  if (Number.isNaN(dateObj.getTime())) return "—";
   
   const date = dateObj.toLocaleString('pt-BR', {
     dateStyle: 'short',
@@ -18,7 +21,7 @@ export function formatDatetime(dateValue) {
     timeZone: 'America/Sao_Paulo'
   });
   
-  return `${date} às ${time}`;
+  return includeTime ? `${date} às ${time}` : date;
 }
 
 export function validarCnpj(cnpj) {
