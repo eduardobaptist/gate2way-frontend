@@ -1,0 +1,7 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "git": {
+    "deploymentEnabled": false
+  },
+  "buildCommand": "node -e \"if(process.env.VERCEL_ENV==='production'){console.error('Producao bloqueada durante homologacao Gate2Way');process.exit(1)}\" && npm run build"
+}
