@@ -229,11 +229,11 @@ export const ProjetosForm = forwardRef(({ onSubmit, formData, isSubmitting = fal
             {label} {required && <RequiredFieldSpan />}
           </FormLabel>
           <Select onValueChange={field.onChange} value={String(field.value)}>
-            <SelectTrigger>
+            <FormControl><SelectTrigger>
               <SelectValue
                 placeholder={required ? "Selecione" : "Indefinido"}
               />
-            </SelectTrigger>
+            </SelectTrigger></FormControl>
             <SelectContent>
               {options.map((opt) => (
                 <SelectItem key={opt.value} value={String(opt.value)}>
@@ -256,11 +256,11 @@ export const ProjetosForm = forwardRef(({ onSubmit, formData, isSubmitting = fal
         className="mx-auto max-w-4xl space-y-4"
       >
         <div className="grid grid-cols-1 gap-4">
-          <fieldset disabled={isSubmitting} className="space-y-4 p-4 bg-white rounded-md shadow-sm border border-gray-300 block">
+          <fieldset disabled={isSubmitting} className="min-w-0 space-y-4 p-4 bg-white rounded-md shadow-sm border border-gray-300 block">
             <legend className="text-md px-2 font-semibold text-gray-800 border-gray-200">
               Geral
             </legend>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               <div>
                 <FormField
                   control={form.control}
@@ -309,7 +309,7 @@ export const ProjetosForm = forwardRef(({ onSubmit, formData, isSubmitting = fal
                         onOpenChange={handleProgramas}
                       >
                         <PopoverTrigger asChild>
-                          <Button
+                          <FormControl><Button
                             variant="outline"
                             role="combobox"
                             aria-expanded={programasOpen}
@@ -321,9 +321,9 @@ export const ProjetosForm = forwardRef(({ onSubmit, formData, isSubmitting = fal
                                 )?.label
                               : "Selecione"}
                             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                          </Button>
+                          </Button></FormControl>
                         </PopoverTrigger>
-                        <PopoverContent className="w-[400px] p-0">
+                        <PopoverContent className="w-[--radix-popover-trigger-width] max-w-[calc(100vw-2rem)] p-0">
                           <Command>
                             <CommandInput placeholder="Buscar programa..." />
                             {isLoadingOptions ? (
@@ -367,7 +367,7 @@ export const ProjetosForm = forwardRef(({ onSubmit, formData, isSubmitting = fal
                   )}
                 />
               </div>
-              <div className="flex flex-col md:flex-row md:gap-8">
+              <div className="flex min-w-0 flex-col xl:flex-row xl:gap-8">
                 <FormField
                   control={form.control}
                   name="impulso"
@@ -376,6 +376,7 @@ export const ProjetosForm = forwardRef(({ onSubmit, formData, isSubmitting = fal
                       <FormLabel>Possui impulso acadêmico?</FormLabel>
                       <FormControl>
                         <RadioGroup
+                          aria-label="Possui impulso acadêmico?"
                           onValueChange={(value) => {
                             const isImpulso = value === "true";
                             field.onChange(isImpulso);
@@ -422,7 +423,7 @@ export const ProjetosForm = forwardRef(({ onSubmit, formData, isSubmitting = fal
                             onOpenChange={handleImpulsos}
                           >
                             <PopoverTrigger asChild>
-                              <Button
+                              <FormControl><Button
                                 variant="outline"
                                 role="combobox"
                                 aria-expanded={impulsosOpen}
@@ -434,9 +435,9 @@ export const ProjetosForm = forwardRef(({ onSubmit, formData, isSubmitting = fal
                                     )?.label
                                   : "Selecione"}
                                 <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                              </Button>
+                              </Button></FormControl>
                             </PopoverTrigger>
-                            <PopoverContent className="w-[400px] p-0">
+                            <PopoverContent className="w-[--radix-popover-trigger-width] max-w-[calc(100vw-2rem)] p-0">
                               <Command>
                                 <CommandInput placeholder="Buscar impulso..." />
                                 {isLoadingOptions ? (
@@ -592,11 +593,11 @@ export const ProjetosForm = forwardRef(({ onSubmit, formData, isSubmitting = fal
             </div>
           </fieldset>
 
-          <fieldset disabled={isSubmitting} className="space-y-4 mt-5 p-4 bg-white rounded-md shadow-sm border border-gray-300 block">
+          <fieldset disabled={isSubmitting} className="min-w-0 space-y-4 mt-5 p-4 bg-white rounded-md shadow-sm border border-gray-300 block">
             <legend className="text-md px-2 font-semibold text-gray-800 border-gray-200">
               Métricas
             </legend>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
               <div>
                 {renderSelect(
                   "trl",

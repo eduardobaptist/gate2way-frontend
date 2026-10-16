@@ -18,7 +18,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Search, PlusCircle, Filter, Loader2 } from "lucide-react";
+import { Search, PlusCircle, Filter, Loader2, } from "lucide-react";
 import { EmpresasActions } from "./EmpresasActions";
 import { Link } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
@@ -33,7 +33,7 @@ export const EmpresasList = () => {
   const [error, setError] = useState(null);
 
   const formatPhone = (phone) => {
-    if (!phone) return "-";
+    if (!phone) return "—";
     const digits = phone.replace(/\D/g, "");
 
     if (digits.length === 11) {
@@ -48,7 +48,7 @@ export const EmpresasList = () => {
   const filters = [
     { value: "nome", label: "Nome" },
     { value: "cnpj", label: "CNPJ" },
-    { value: "telefone", label: "Telefone" },
+    { value: "telefone", label: "Telefone/celular" },
     { value: "area", label: "Área de atuação" },
     { value: "dataCriacao", label: "Data de criação" },
   ];
@@ -83,6 +83,8 @@ export const EmpresasList = () => {
     switch (filterType) {
       case "nome":
         return empresa.nome.toLowerCase().includes(searchLower);
+      case "cnpj":
+        return (empresa.cnpj || "").toLowerCase().replace(/[.\/\s-]/g, "").includes(searchLower.replace(/[.\/\s-]/g, ""));
       case "telefone":
         return empresa.telefone
           ?.replace(/(\d{2})(\d{2})(\d{4})(\d{4})/, "+$1 ($2) $3-$4")
@@ -91,10 +93,7 @@ export const EmpresasList = () => {
       case "area":
         return empresa.area?.toLowerCase().includes(searchLower);
       case "dataCriacao":
-        return new Date(empresa.createdAt)
-          .toLocaleDateString()
-          .toLowerCase()
-          .includes(searchLower);
+        return formatDatetime(empresa.createdAt, false).toLowerCase().includes(searchLower);
       default:
         return true;
     }
@@ -108,7 +107,7 @@ export const EmpresasList = () => {
             defaultValue="nome"
             onValueChange={(value) => setFilterType(value)}
           >
-            <SelectTrigger className="w-max rounded-r-none border-r-0">
+            <SelectTrigger aria-label="Campo de busca" className="shrink-0 w-max rounded-r-none border-r-0">
               <SelectValue>
                 <div className="flex items-center">
                   <Filter className="mr-2 h-4 w-4" />
@@ -131,7 +130,8 @@ export const EmpresasList = () => {
               <Input
                 type="text"
                 placeholder="Buscar"
-                className="rounded-l-none pl-3"
+                aria-label="Buscar registros"
+                className="rounded-l-none pl-3 pr-10"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -157,17 +157,18 @@ export const EmpresasList = () => {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead></TableHead>
+
                 <TableHead>Nome</TableHead>
                 <TableHead>Telefone/celular</TableHead>
                 <TableHead>Área de atuação</TableHead>
                 <TableHead>Data de criação</TableHead>
+              <TableHead className="w-16 text-right">Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8">
+                  <TableCell colSpan={5} className="text-center py-8">
                     <div className="flex items-center justify-center">
                       <Loader2 className="h-6 w-6 animate-spin mr-2" />
                       Carregando empresas...
@@ -177,7 +178,7 @@ export const EmpresasList = () => {
               ) : error ? (
                 <TableRow>
                   <TableCell
-                    colSpan={6}
+                    colSpan={5}
                     className="text-center py-8 text-red-500"
                   >
                     {error}
@@ -186,7 +187,7 @@ export const EmpresasList = () => {
               ) : filteredEmpresas.length === 0 ? (
                 <TableRow>
                   <TableCell
-                    colSpan={6}
+                    colSpan={5}
                     className="text-center py-8 text-gray-500"
                   >
                     Nenhuma empresa encontrada.
@@ -195,20 +196,21 @@ export const EmpresasList = () => {
               ) : (
                 filteredEmpresas.map((empresa) => (
                   <TableRow key={empresa.id}>
+
+                    <TableCell><div className="flex items-center gap-2">
+                      <OrganizationLogo src={empresa.foto_perfil ? `${import.meta.env.VITE_API_URL}${empresa.foto_perfil}` : null} name={empresa.nome} className="h-8 w-8 rounded-full border p-1" />
+                      <span className="max-w-[260px] truncate" title={empresa.nome}>{empresa.nome || "—"}</span>
+                    </div></TableCell>
+                    <TableCell>{formatPhone(empresa.telefone)}</TableCell>
+                    <TableCell>{empresa.area || "—"}</TableCell>
                     <TableCell>
+                      {formatDatetime(empresa.createdAt) || "—"}
+                    </TableCell>
+                  <TableCell className="text-right">
                       <EmpresasActions
                         empresa={empresa}
                         onRefresh={fetchEmpresas}
                       />
-                    </TableCell>
-                    <TableCell className="flex items-center gap-2">
-                      <OrganizationLogo src={empresa.foto_perfil ? `${import.meta.env.VITE_API_URL}${empresa.foto_perfil}` : null} name={empresa.nome} className="h-8 w-8 rounded-full border p-1" />
-                      <span>{empresa.nome}</span>
-                    </TableCell>
-                    <TableCell>{formatPhone(empresa.telefone)}</TableCell>
-                    <TableCell>{empresa.area || "-"}</TableCell>
-                    <TableCell>
-                      {formatDatetime(empresa.createdAt) || "-"}
                     </TableCell>
                   </TableRow>
                 ))

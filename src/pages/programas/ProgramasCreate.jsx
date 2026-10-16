@@ -14,6 +14,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import {
   Check,
@@ -147,8 +148,8 @@ export const ProgramasCreate = () => {
   });
 
   return (
-    <MainWrapper title="Novo programa">
-      <div className="flex items-center justify-between">
+    <MainWrapper title="Novo programa" contentClassName="mx-auto max-w-4xl">
+      <div className="flex flex-wrap items-center gap-3 mb-6">
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button
@@ -185,7 +186,7 @@ export const ProgramasCreate = () => {
           </AlertDialogContent>
         </AlertDialog>
         <Button
-          className="bg-green-500 text-white font-bold hover:text-white hover:bg-green-600"
+          className="bg-green-700 text-white font-bold hover:text-white hover:bg-green-800"
           variant="outline"
           onClick={handleSave}
           disabled={isSubmitting}
@@ -208,7 +209,7 @@ export const ProgramasCreate = () => {
                 return (
                   <FormItem className="col-span-2 md:col-span-1">
                     <FormLabel>Nome <RequiredFieldSpan /></FormLabel>
-                    <FormControl>
+                    <FormControl aria-required="true">
                       <Input type="text" {...field} disabled={isSubmitting} />
                     </FormControl>
                     <FormMessage />
@@ -224,7 +225,7 @@ export const ProgramasCreate = () => {
                   <FormLabel>Rota do programa <RequiredFieldSpan /></FormLabel>
                   <Popover open={open} onOpenChange={handleRotas}>
                     <PopoverTrigger asChild>
-                      <Button
+                      <FormControl><Button
                         variant="outline"
                         role="combobox"
                         aria-expanded={open}
@@ -236,9 +237,9 @@ export const ProgramasCreate = () => {
                               ?.label
                           : "Selecione"}
                         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                      </Button>
+                      </Button></FormControl>
                     </PopoverTrigger>
-                    <PopoverContent className="w-[400px] p-0">
+                    <PopoverContent className="w-[--radix-popover-trigger-width] max-w-[calc(100vw-2rem)] p-0">
                       <Command>
                         <CommandInput
                           placeholder="Buscar rota..."
@@ -291,8 +292,8 @@ export const ProgramasCreate = () => {
                 return (
                   <FormItem className="col-span-2">
                     <FormLabel>Descrição <RequiredFieldSpan /></FormLabel>
-                    <FormControl>
-                      <Input type="text" {...field} disabled={isSubmitting} />
+                    <FormControl aria-required="true">
+                      <Textarea rows={4} {...field} disabled={isSubmitting} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

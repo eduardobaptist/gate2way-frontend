@@ -31,6 +31,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription,
 } from "@/components/ui/form";
 import {
   Select,
@@ -80,9 +81,9 @@ const usuarioFormSchema = z
       .max(255, "Nome não deve exceder 255 caracteres"),
     email: z
       .string()
-      .min(1, "Email é obrigatório")
-      .max(255, "Email não deve exceder 255 caracteres")
-      .email("Email inválido"),
+      .min(1, "E-mail é obrigatório")
+      .max(255, "E-mail não deve exceder 255 caracteres")
+      .email("E-mail inválido"),
     senha: z
       .string()
       .min(1, "Insira a senha do usuário")
@@ -131,7 +132,7 @@ const usuarioFormSchema = z
 export const UsuariosCreate = () => {
   const [empresas, setEmpresas] = useState([]);
   const [icts, setIcts] = useState([]);
-  const [tipo, setTipo] = useState("admin");
+  const [tipo, setTipo] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -141,7 +142,7 @@ export const UsuariosCreate = () => {
   const tipos = [
     { value: "admin", label: "Administrador" },
     { value: "empresa", label: "Empresa" },
-    { value: "ict", label: "Institução de Ciência e Tecnologia (ICT)" },
+    { value: "ict", label: "Instituição de Ciência e Tecnologia (ICT)" },
   ];
 
   useEffect(() => {
@@ -241,7 +242,8 @@ export const UsuariosCreate = () => {
       nome: "",
       email: "",
       senha: "",
-      tipo: "admin",
+      // UX Gate2Way: o perfil começa vazio e precisa ser escolhido explicitamente.
+      tipo: "",
       endereco: "",
       telefone: "",
       cnpj: "",
@@ -251,8 +253,8 @@ export const UsuariosCreate = () => {
   });
 
   return (
-    <MainWrapper title="Novo usuário">
-      <div className="flex items-center justify-between">
+    <MainWrapper title="Novo usuário" contentClassName="mx-auto max-w-4xl">
+      <div className="flex flex-wrap items-center gap-3 mb-6">
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button
@@ -289,7 +291,7 @@ export const UsuariosCreate = () => {
           </AlertDialogContent>
         </AlertDialog>
         <Button
-          className="bg-green-500 text-white font-bold hover:text-white hover:bg-green-600"
+          className="bg-green-700 text-white font-bold hover:text-white hover:bg-green-800"
           variant="outline"
           onClick={handleSave}
           disabled={isSubmitting}
@@ -320,9 +322,9 @@ export const UsuariosCreate = () => {
                     }}
                     value={field.value}
                   >
-                    <SelectTrigger>
+                    <FormControl><SelectTrigger>
                       <SelectValue placeholder="Selecione" />
-                    </SelectTrigger>
+                    </SelectTrigger></FormControl>
                     <SelectContent>
                       {tipos.map((tipo) => (
                         <SelectItem key={tipo.value} value={tipo.value}>
@@ -347,7 +349,7 @@ export const UsuariosCreate = () => {
                     </FormLabel>
                     <Popover>
                       <PopoverTrigger asChild>
-                        <Button
+                        <FormControl><Button
                           variant="outline"
                           role="combobox"
                           className="w-full justify-between"
@@ -358,9 +360,9 @@ export const UsuariosCreate = () => {
                                 ?.label
                             : "Selecione"}
                           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                        </Button>
+                        </Button></FormControl>
                       </PopoverTrigger>
-                      <PopoverContent className="w-[400px] p-0">
+                      <PopoverContent className="w-[--radix-popover-trigger-width] max-w-[calc(100vw-2rem)] p-0">
                         <Command>
                           <CommandInput
                             placeholder="Buscar ICT..."
@@ -416,7 +418,7 @@ export const UsuariosCreate = () => {
                     </FormLabel>
                     <Popover>
                       <PopoverTrigger asChild>
-                        <Button
+                        <FormControl><Button
                           variant="outline"
                           role="combobox"
                           className="w-full justify-between"
@@ -428,9 +430,9 @@ export const UsuariosCreate = () => {
                               )?.label
                             : "Selecione"}
                           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                        </Button>
+                        </Button></FormControl>
                       </PopoverTrigger>
-                      <PopoverContent className="w-[400px] p-0">
+                      <PopoverContent className="w-[--radix-popover-trigger-width] max-w-[calc(100vw-2rem)] p-0">
                         <Command>
                           <CommandInput
                             placeholder="Buscar empresa..."
@@ -486,7 +488,7 @@ export const UsuariosCreate = () => {
                     <FormLabel>
                       Nome <RequiredFieldSpan />
                     </FormLabel>
-                    <FormControl>
+                    <FormControl aria-required="true">
                       <Input type="text" {...field} disabled={isSubmitting} />
                     </FormControl>
                     <FormMessage />
@@ -502,15 +504,12 @@ export const UsuariosCreate = () => {
                 return (
                   <FormItem className="col-span-2 md:col-span-1">
                     <FormLabel>
-                      E-mail{" "}
-                      <span className="font-normal text-xs">
-                        (será usado para entrar na plataforma)
-                      </span>{" "}
-                      <RequiredFieldSpan />
+                      E-mail                       <RequiredFieldSpan />
                     </FormLabel>
-                    <FormControl>
-                      <Input type="text" {...field} disabled={isSubmitting} />
+                    <FormControl aria-required="true">
+                      <Input type="email" {...field} disabled={isSubmitting} />
                     </FormControl>
+                    <FormDescription>Será usado para entrar na plataforma.</FormDescription>
                     <FormMessage />
                   </FormItem>
                 );
@@ -526,13 +525,19 @@ export const UsuariosCreate = () => {
                     Senha <RequiredFieldSpan />
                   </FormLabel>
                   <div className="relative">
-                    <Input
-                      type={showPassword ? "text" : "password"}
-                      {...field}
-                      className="pr-10"
-                    />
+                    <FormControl aria-required="true">
+                      <Input
+                        type={showPassword ? "text" : "password"}
+                        {...field}
+                        className="pr-10"
+                        disabled={isSubmitting}
+                      />
+                    </FormControl>
                     <button
                       type="button"
+                      aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                      aria-pressed={showPassword}
+                      disabled={isSubmitting}
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
                       onClick={() => setShowPassword(!showPassword)}
                     >
@@ -543,6 +548,7 @@ export const UsuariosCreate = () => {
                       )}
                     </button>
                   </div>
+                  <FormDescription>Use de 1 a 20 caracteres.</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}

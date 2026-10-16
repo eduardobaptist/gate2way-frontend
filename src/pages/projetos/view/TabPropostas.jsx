@@ -135,10 +135,10 @@ export const TabPropostas = ({ projeto, onRefresh }) => {
                   setIsApproveDialogOpen(true);
                   setIsRejectDialogOpen(false);
                 }}
-                className="text-black hover:bg-emerald-50 hover:border-emerald-300 hover:text-emerald-700 flex-1"
+                className="bg-emerald-700 text-white hover:bg-emerald-800 hover:text-white flex-1"
                 variant="outline"
               >
-                <CheckCircle className="mr-2 text-emerald-600" size="16" />
+                <CheckCircle className="mr-2" size="16" />
                 Aprovar Proposta
               </Button>
               <Button
@@ -147,7 +147,7 @@ export const TabPropostas = ({ projeto, onRefresh }) => {
                   setIsApproveDialogOpen(false);
                   setIsRejectDialogOpen(true);
                 }}
-                className="text-black hover:bg-rose-50 hover:border-rose-300 hover:text-rose-700 flex-1"
+                className="border-rose-600 text-rose-700 hover:bg-rose-50 hover:text-rose-800 flex-1"
                 variant="outline"
               >
                 <XCircle className="mr-2 text-rose-600" size="16" />
@@ -198,7 +198,7 @@ export const TabPropostas = ({ projeto, onRefresh }) => {
                       </p>
                     </div>
                   ) : (
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 gap-4">
                       {categorizedInteresses.pendentes.map((interesse) => (
                         <InteresseItem
                           key={interesse.id}
@@ -237,7 +237,7 @@ export const TabPropostas = ({ projeto, onRefresh }) => {
                       </p>
                     </div>
                   ) : (
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 gap-4">
                       {categorizedInteresses.aprovadas.map((interesse) => (
                         <InteresseItem
                           key={interesse.id}
@@ -262,7 +262,7 @@ export const TabPropostas = ({ projeto, onRefresh }) => {
                   </Badge>
                   <div className="text-left">
                     <span className="font-semibold text-rose-800 text-lg">
-                      Propostas não aprovadas
+                      Propostas rejeitadas
                     </span>
                   </div>
                 </div>
@@ -276,7 +276,7 @@ export const TabPropostas = ({ projeto, onRefresh }) => {
                       </p>
                     </div>
                   ) : (
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 gap-4">
                       {categorizedInteresses.naoAprovadas.map((interesse) => (
                         <InteresseItem
                           key={interesse.id}
@@ -303,7 +303,7 @@ export const TabPropostas = ({ projeto, onRefresh }) => {
               Tem certeza que deseja aprovar essa proposta?
             </AlertDialogTitle>
             <AlertDialogDescription>
-              As demais propostas para este projeto serão 
+              As demais propostas para este projeto serão
               automaticamente rejeitadas.
             </AlertDialogDescription>
           </AlertDialogHeader>

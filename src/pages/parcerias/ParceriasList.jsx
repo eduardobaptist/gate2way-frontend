@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
+  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -99,7 +100,7 @@ export const ParceriasList = () => {
             value={filterType}
             onValueChange={(value) => setFilterType(value)}
           >
-            <SelectTrigger aria-label="Campo de busca" className="w-max rounded-r-none border-r-0">
+            <SelectTrigger aria-label="Campo de busca" className="shrink-0 w-max rounded-r-none border-r-0">
               <SelectValue>
                 <div className="flex items-center">
                   <Filter className="mr-2 h-4 w-4" />
@@ -122,8 +123,8 @@ export const ParceriasList = () => {
               <Input
                 type="text"
                 placeholder="Buscar"
-                aria-label="Buscar parcerias"
-                className="rounded-l-none pl-3"
+                aria-label="Buscar registros"
+                className="rounded-l-none pl-3 pr-10"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -136,13 +137,14 @@ export const ParceriasList = () => {
       <div className="mt-5">
         <div className="rounded-lg overflow-hidden border bg-card shadow-sm">
           <Table>
+            <TableCaption>Responsável e e-mail referem-se à ICT.</TableCaption>
             <TableHeader>
               <TableRow>
                 <TableHead>Projeto</TableHead>
                 <TableHead>Empresa</TableHead>
                 <TableHead>ICT</TableHead>
-                <TableHead>Responsável da ICT</TableHead>
-                <TableHead>E-mail do responsável da ICT</TableHead>
+                <TableHead>Responsável</TableHead>
+                <TableHead>E-mail</TableHead>
                 <TableHead>Data de criação</TableHead>
               </TableRow>
             </TableHeader>
@@ -171,7 +173,7 @@ export const ParceriasList = () => {
                     colSpan={6}
                     className="text-center py-8 text-gray-500"
                   >
-                    Nenhuma parceria encontrada.
+                    {parcerias.length === 0 ? "Nenhuma parceria encontrada. As parcerias serão exibidas aqui após a aprovação das propostas." : "Nenhuma parceria corresponde aos filtros."}
                   </TableCell>
                 </TableRow>
               ) : (
@@ -198,7 +200,7 @@ export const ParceriasList = () => {
                         <div className="truncate group-hover:whitespace-normal transition-all duration-300 ease-in-out hover:scale-100 opacity-90 hover:opacity-100">
                           {
                             parceria.Interesse?.Oferta?.Projeto?.Programa?.Rota
-                              ?.Empresa?.nome || "—"
+                              ?.Empresa?.nome
                           }
                         </div>
                       </div>
@@ -209,7 +211,7 @@ export const ParceriasList = () => {
                         <div className="truncate group-hover:whitespace-normal transition-all duration-300 ease-in-out hover:scale-100 opacity-90 hover:opacity-100">
                           {
                             parceria.Interesse?.Usuario?.Responsavels?.[0]?.Ict
-                              ?.nome || "—"
+                              ?.nome
                           }
                         </div>
                       </div>
@@ -217,19 +219,19 @@ export const ParceriasList = () => {
                     <TableCell>
                       <div className="max-w-md relative group">
                         <div className="truncate group-hover:whitespace-normal transition-all duration-300 ease-in-out hover:scale-100 opacity-90 hover:opacity-100">
-                          {parceria.Interesse?.Usuario?.nome || "—"}
+                          {parceria.Interesse?.Usuario?.nome}
                         </div>
                       </div>
                     </TableCell>
                     <TableCell>
                       <div className="max-w-md relative group">
                         <div className="truncate group-hover:whitespace-normal transition-all duration-300 ease-in-out hover:scale-100 opacity-90 hover:opacity-100">
-                          {parceria.Interesse?.Usuario?.email || "—"}
+                          {parceria.Interesse?.Usuario?.email}
                         </div>
                       </div>
                     </TableCell>
                     <TableCell>
-                      {formatDataCriacao(parceria.createdAt)}
+                      {formatDatetime(parceria.createdAt) || "-"}
                     </TableCell>
                   </TableRow>
                 ))

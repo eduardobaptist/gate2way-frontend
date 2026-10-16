@@ -112,7 +112,7 @@ export default function Dashboard() {
             <Card className="min-h-[140px] sm:min-h-[160px]">
               <CardHeader className="flex flex-row items-center justify-between pb-3">
                 <CardTitle className="text-sm font-medium text-gray-600">
-                  Organizações ativas
+                  Empresas e ICTs cadastradas
                 </CardTitle>
                 <Building2 className="h-6 w-6" />
               </CardHeader>
@@ -140,7 +140,7 @@ export default function Dashboard() {
             <Card className="min-h-[140px] sm:min-h-[160px]">
               <CardHeader className="flex flex-row items-center justify-between pb-3">
                 <CardTitle className="text-sm font-medium text-gray-600">
-                  Visualizações no mês
+                  Visualizações no mês atual
                 </CardTitle>
                 <Eye className="h-6 w-6" />
               </CardHeader>
@@ -152,23 +152,24 @@ export default function Dashboard() {
             </Card>
           </div>
 
-          <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
+          {/* UX Gate2Way: períodos distintos na API; o gráfico usa a largura do card sem impor proporção fixa. */}
+          <div className="grid items-start gap-4 sm:gap-6 lg:grid-cols-2">
             <Card>
               <CardHeader>
                 <CardTitle className="text-base sm:text-lg text-black">
                   Principais projetos por propostas
                 </CardTitle>
                 <CardDescription className="text-sm text-gray-600">
-                  Projetos recebendo mais propostas no último mês
+                  Projetos recebendo mais propostas no mês atual
                 </CardDescription>
               </CardHeader>
-              <CardContent className="p-4 sm:p-6">
+              <CardContent className="px-4 pb-4 pt-0 sm:px-6">
                 {!dashboardData?.charts.topProjects ||
                 dashboardData.charts.topProjects.length === 0 ? (
-                  <div className="flex items-center text-gray-500 justify-center h-[250px] sm:h-[280px] lg:h-[300px]">
+                  <div className="flex items-center text-slate-600 justify-center gap-2 py-2">
                     <SearchX className="w-5 h-5 mr-2" />
                     <p className="text-md">
-                      Nenhuma proposta registrada no último mês
+                      Nenhuma proposta registrada no mês atual
                     </p>
                   </div>
                 ) : (
@@ -179,7 +180,7 @@ export default function Dashboard() {
                         color: "#0a2770",
                       },
                     }}
-                    className="h-[250px] sm:h-[280px] lg:h-[300px]"
+                    className="aspect-auto w-full min-w-0 h-[250px] sm:h-[280px] lg:h-[300px]"
                   >
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart
@@ -190,14 +191,14 @@ export default function Dashboard() {
                         <XAxis
                           type="number"
                           className="text-xs"
-                          tick={{ fill: "#6b7280" }}
+                          tick={{ fill: "#475569" }}
                         />
                         <YAxis
                           dataKey="name"
                           type="category"
                           width={100}
                           className="text-xs"
-                          tick={{ fill: "#6b7280" }}
+                          tick={{ fill: "#475569" }}
                         />
                         <ChartTooltip content={<ChartTooltipContent />} />
                         <Bar
@@ -218,16 +219,17 @@ export default function Dashboard() {
                   Visualizações
                 </CardTitle>
                 <CardDescription className="text-sm text-gray-600">
-                  Visualizações diárias em todos os projetos esta semana
+                  Últimos 7 dias, agrupados por dia da semana
                 </CardDescription>
               </CardHeader>
               <CardContent className="p-4 sm:p-6">
+                <p className="mb-3 text-xs text-slate-700">Eixo horizontal: dia da semana. Eixo vertical: quantidade de visualizações.</p>
                 {!dashboardData?.charts.projectViews ||
-                dashboardData?.charts.projectViews.length === 0 ? (
-                  <div className="flex items-center justify-center h-[250px] sm:h-[280px] lg:h-[300px]">
+                !dashboardData.charts.projectViews.some((day) => day.views > 0) ? (
+                  <div className="flex items-center justify-center py-4">
                     <SearchX className="w-5 h-5 mr-2" />
                     <p className="text-gray-500 text-sm">
-                      Sem visualizações registradas na última semana
+                      Sem visualizações nos últimos 7 dias
                     </p>
                   </div>
                 ) : (
@@ -238,7 +240,7 @@ export default function Dashboard() {
                         color: "#8b5cf6",
                       },
                     }}
-                    className="h-[250px] sm:h-[280px] lg:h-[300px]"
+                    className="aspect-auto w-full min-w-0 h-[250px] sm:h-[280px] lg:h-[300px]"
                   >
                     <ResponsiveContainer width="100%" height="100%">
                       <AreaChart data={dashboardData.charts.projectViews}>
@@ -266,9 +268,9 @@ export default function Dashboard() {
                         <XAxis
                           dataKey="day"
                           className="text-xs"
-                          tick={{ fill: "#6b7280" }}
+                          tick={{ fill: "#475569" }}
                         />
-                        <YAxis className="text-xs" tick={{ fill: "#6b7280" }} />
+                        <YAxis allowDecimals={false} className="text-xs" tick={{ fill: "#475569" }} />
                         <ChartTooltip content={<ChartTooltipContent />} />
                         <Area
                           type="monotone"

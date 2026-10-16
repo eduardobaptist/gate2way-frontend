@@ -47,9 +47,9 @@ const usuarioFormSchema = z.object({
     .max(255, "Nome não deve exceder 255 caracteres"),
   email: z
     .string()
-    .min(1, "Email é obrigatório")
-    .max(255, "Email não deve exceder 255 caracteres")
-    .email("Email inválido"),
+    .min(1, "E-mail é obrigatório")
+    .max(255, "E-mail não deve exceder 255 caracteres")
+    .email("E-mail inválido"),
   // Na edicao, senha vazia preserva a senha existente.
   senha: z
     .string()
@@ -190,8 +190,8 @@ export const UsuariosEdit = () => {
   };
 
   return (
-    <MainWrapper title="Editar usuário">
-      <div className="flex items-center justify-between">
+    <MainWrapper title="Editar usuário" contentClassName="mx-auto max-w-4xl">
+      <div className="flex flex-wrap items-center gap-3 mb-6">
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button
@@ -228,7 +228,7 @@ export const UsuariosEdit = () => {
           </AlertDialogContent>
         </AlertDialog>
         <Button
-          className="bg-green-500 text-white font-bold hover:text-white hover:bg-green-600"
+          className="bg-green-700 text-white font-bold hover:text-white hover:bg-green-800"
           variant="outline"
           onClick={handleSave}
           disabled={isSubmitting}
@@ -259,7 +259,7 @@ export const UsuariosEdit = () => {
                       <FormLabel>
                         E-mail <RequiredFieldSpan />
                       </FormLabel>
-                      <FormControl>
+                      <FormControl aria-required="true">
                         <Input type="text" {...field} disabled={isSubmitting} />
                       </FormControl>
                       <FormMessage />
@@ -277,13 +277,19 @@ export const UsuariosEdit = () => {
                       Senha
                     </FormLabel>
                     <div className="relative">
-                      <Input
-                        type={showPassword ? "text" : "password"}
-                        {...field}
-                        className="pr-10"
-                      />
+                      <FormControl>
+                        <Input
+                          type={showPassword ? "text" : "password"}
+                          {...field}
+                          className="pr-10"
+                          disabled={isSubmitting}
+                        />
+                      </FormControl>
                       <button
                         type="button"
+                        aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                        aria-pressed={showPassword}
+                        disabled={isSubmitting}
                         className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
                         onClick={() => setShowPassword(!showPassword)}
                       >
@@ -309,7 +315,7 @@ export const UsuariosEdit = () => {
                       <FormLabel>
                         Nome <RequiredFieldSpan />
                       </FormLabel>
-                      <FormControl>
+                      <FormControl aria-required="true">
                         <Input type="text" {...field} disabled={isSubmitting} />
                       </FormControl>
                       <FormMessage />

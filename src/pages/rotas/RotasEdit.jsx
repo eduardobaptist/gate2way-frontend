@@ -12,6 +12,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { ArrowLeftCircle, CheckCircleIcon, Loader2 } from "lucide-react";
 import {
@@ -41,10 +42,10 @@ export const RotasEdit = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { id } = useParams();
-  
+
   const { user } = useAuth();
   const empresa_id = user?.empresa_id;
-  
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -133,8 +134,8 @@ export const RotasEdit = () => {
   };
 
   return (
-    <MainWrapper title="Editar rota">
-      <div className="flex items-center justify-between">
+    <MainWrapper title="Editar rota" contentClassName="mx-auto max-w-4xl">
+      <div className="flex flex-wrap items-center gap-3 mb-6">
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button
@@ -166,7 +167,7 @@ export const RotasEdit = () => {
           </AlertDialogContent>
         </AlertDialog>
         <Button
-          className="bg-green-500 text-white font-bold hover:text-white hover:bg-green-600"
+          className="bg-green-700 text-white font-bold hover:text-white hover:bg-green-800"
           variant="outline"
           onClick={handleSave}
           disabled={isSubmitting}
@@ -202,7 +203,7 @@ export const RotasEdit = () => {
                     <FormLabel>
                       Nome <RequiredFieldSpan />
                     </FormLabel>
-                    <FormControl>
+                    <FormControl aria-required="true">
                       <Input type="text" disabled={isSubmitting} {...field} />
                     </FormControl>
                     <FormMessage />
@@ -217,8 +218,8 @@ export const RotasEdit = () => {
                     <FormLabel>
                       Descrição <RequiredFieldSpan />
                     </FormLabel>
-                    <FormControl>
-                      <Input type="text" disabled={isSubmitting} {...field} />
+                    <FormControl aria-required="true">
+                      <Textarea rows={4} disabled={isSubmitting} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

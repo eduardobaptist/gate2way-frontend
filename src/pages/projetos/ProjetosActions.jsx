@@ -22,7 +22,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import {
-  Menu,
+  MoreHorizontal,
   Trash2,
   Edit2,
   Eye,
@@ -90,20 +90,26 @@ export const ProjetosActions = ({ projeto, onRefresh }) => {
 
   return (
     <TooltipProvider delayDuration={100}>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <div className="inline-block">
-            <DropdownMenu
+      <DropdownMenu
               open={isDropdownOpen}
               onOpenChange={setIsDropdownOpen}
             >
+          {/* UX Gate2Way: o tooltip usa o próprio botão; evita botões aninhados e preserva o teclado. */}
+          <Tooltip>
+            <TooltipTrigger asChild>
               <DropdownMenuTrigger
-                className="focus:outline-none"
+                type="button"
+                aria-label="Ações"
+                title="Ações"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-md text-slate-600 hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 onClick={(e) => e.stopPropagation()}
               >
-                <Menu className="h-6 w-6 text-gray-500 hover:text-gray-700" />
+                <MoreHorizontal className="h-6 w-6 text-gray-500 hover:text-gray-700" />
               </DropdownMenuTrigger>
-              <DropdownMenuContent
+            </TooltipTrigger>
+            <TooltipContent><p>Ações</p></TooltipContent>
+          </Tooltip>
+          <DropdownMenuContent
                 align="end"
                 className="w-48"
                 onClick={(e) => e.stopPropagation()}
@@ -148,13 +154,7 @@ export const ProjetosActions = ({ projeto, onRefresh }) => {
                   </DropdownMenuItem>
                 ) : null}
               </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </TooltipTrigger>
-        <TooltipContent>
-          <p>Opções</p>
-        </TooltipContent>
-      </Tooltip>
+        </DropdownMenu>
 
       <AlertDialog
         open={isDeleteDialogOpen}
@@ -162,7 +162,7 @@ export const ProjetosActions = ({ projeto, onRefresh }) => {
       >
         <AlertDialogContent onClick={(e) => e.stopPropagation()}>
           <AlertDialogHeader>
-            <AlertDialogTitle>Tem certeza que deseja excluir?</AlertDialogTitle>
+            <AlertDialogTitle>Excluir “{projeto.nome}”?</AlertDialogTitle>
             <AlertDialogDescription>
               Esta ação não pode ser desfeita. Todos os dados relacionados a
               este projeto serão permanentemente excluídos.
