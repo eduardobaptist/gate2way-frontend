@@ -68,16 +68,13 @@ export const RotasList = () => {
     const searchLower = searchTerm.toLowerCase();
     switch (filterType) {
       case "nome":
-        return rota.nome.toLowerCase().includes(searchLower);
+        return rota.nome?.toLowerCase().includes(searchLower);
       case "empresa":
         return rota.Empresa?.nome?.toLowerCase().includes(searchLower);
       case "descricao":
-        return rota.descricao.toLowerCase().includes(searchLower);
+        return rota.descricao?.toLowerCase().includes(searchLower);
       case "dataCriacao":
-        return new Date(rota.createdAt)
-          .toLocaleDateString()
-          .toLowerCase()
-          .includes(searchLower);
+        return formatDatetime(rota.createdAt, false).toLowerCase().includes(searchLower);
       default:
         return true;
     }
@@ -101,7 +98,7 @@ export const RotasList = () => {
             defaultValue="nome"
             onValueChange={(value) => setFilterType(value)}
           >
-            <SelectTrigger className="w-max rounded-r-none border-r-0">
+            <SelectTrigger aria-label="Campo de busca" className="shrink-0 w-max rounded-r-none border-r-0">
               <SelectValue>
                 <div className="flex items-center">
                   <Filter className="mr-2 h-4 w-4" />
@@ -124,7 +121,8 @@ export const RotasList = () => {
               <Input
                 type="text"
                 placeholder="Buscar"
-                className="rounded-l-none pl-3"
+                aria-label="Buscar registros"
+                className="rounded-l-none pl-3 pr-10"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -150,12 +148,13 @@ export const RotasList = () => {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead></TableHead>
+
                 <TableHead>Nome</TableHead>
                 <TableHead>Descrição</TableHead>
                 <TableHead>Empresa</TableHead>
                 <TableHead>Data de criação</TableHead>
-                <TableHead>Data de Alteração</TableHead>
+                <TableHead>Data de alteração</TableHead>
+              <TableHead className="w-16 text-right">Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -189,23 +188,24 @@ export const RotasList = () => {
               ) : (
                 filteredRotas.map((rota) => (
                   <TableRow key={rota.id}>
-                    <TableCell>
-                      <RotasActions rota={rota} onRefresh={fetchRotas} />
-                    </TableCell>
-                    <TableCell>{rota.nome}</TableCell>
+
+                    <TableCell>{rota.nome || "—"}</TableCell>
                     <TableCell>
                       <div className="max-w-md relative group">
-                        <div className="truncate group-hover:whitespace-normal transition-all duration-300 ease-in-out hover:scale-100 opacity-90 hover:opacity-100">
-                          {rota.descricao}
+                        <div className="line-clamp-2 min-w-[160px]" title={rota.descricao}>
+                          {rota.descricao || "—"}
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell>{rota.Empresa?.nome || "-"}</TableCell>
-                    <TableCell>
-                      {formatDatetime(rota.createdAt) || "-"}
+                    <TableCell>{rota.Empresa?.nome || "—"}</TableCell>
+                    <TableCell className="whitespace-nowrap" title={formatDatetime(rota.createdAt)}>
+                      {formatDatetime(rota.createdAt, false)}
                     </TableCell>
-                    <TableCell>
-                      {formatDatetime(rota.updatedAt) || "-"}
+                    <TableCell className="whitespace-nowrap" title={formatDatetime(rota.updatedAt)}>
+                      {formatDatetime(rota.updatedAt, false)}
+                    </TableCell>
+                  <TableCell className="text-right">
+                      <RotasActions rota={rota} onRefresh={fetchRotas} />
                     </TableCell>
                   </TableRow>
                 ))

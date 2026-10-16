@@ -200,10 +200,10 @@ export const ProjetosEdit = () => {
   );
 
   return (
-    <MainWrapper title="Editar projeto">
+    <MainWrapper title="Editar projeto" contentClassName={layout === "infosGerais" ? "mx-auto max-w-4xl" : undefined}>
       {isMobile ? (
         <div className="space-y-3">
-          <div className="flex justify-between align-center">
+          <div className="flex flex-wrap items-center gap-3">
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button
@@ -234,7 +234,7 @@ export const ProjetosEdit = () => {
               </AlertDialogContent>
             </AlertDialog>
             <Button
-              className="bg-green-500 text-white font-bold hover:text-white hover:bg-green-600"
+              className="bg-green-700 text-white font-bold hover:text-white hover:bg-green-800"
               variant="outline"
               onClick={handleSave}
               disabled={isSubmitting || !canSave}
@@ -254,14 +254,14 @@ export const ProjetosEdit = () => {
                 <TabsTrigger value="infosGerais">
                   <Library /> Informações gerais
                 </TabsTrigger>
-                <TabsTrigger value="projectCanvas">Project canvas</TabsTrigger>
+                <TabsTrigger value="projectCanvas">Canvas do projeto</TabsTrigger>
               </TabsList>
             </Tabs>
           </div>
         </div>
       ) : (
-        <div className="flex justify-between">
-          <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button
@@ -291,6 +291,15 @@ export const ProjetosEdit = () => {
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
+          <Button
+            className="bg-green-700 text-white font-bold hover:text-white hover:bg-green-800"
+            variant="outline"
+            onClick={handleSave}
+            disabled={isSubmitting || !canSave}
+          >
+            <CheckCircleIcon className="mr-2" size="20" />
+            {isSubmitting ? "Salvando..." : "Salvar"}
+          </Button>
             <Tabs
               value={layout}
               defaultValue="grid"
@@ -304,20 +313,12 @@ export const ProjetosEdit = () => {
                 </TabsTrigger>
                 <TabsTrigger value="projectCanvas">
                   <PanelsTopLeftIcon size="20" className="mr-2" />
-                  Project canvas
+                  Canvas do projeto
                 </TabsTrigger>
               </TabsList>
             </Tabs>
           </div>
-          <Button
-            className="bg-green-500 text-white font-bold hover:text-white hover:bg-green-600"
-            variant="outline"
-            onClick={handleSave}
-            disabled={isSubmitting || !canSave}
-          >
-            <CheckCircleIcon className="mr-2" size="20" />
-            {isSubmitting ? "Salvando..." : "Salvar"}
-          </Button>
+
         </div>
       )}
       {loadError && <Alert role="alert"><AlertTitle>Projeto não carregado</AlertTitle><AlertDescription>{loadError}</AlertDescription></Alert>}
@@ -339,7 +340,7 @@ export const ProjetosEdit = () => {
               <Monitor className="h-4 w-4" />
               <AlertTitle>Edição não disponível</AlertTitle>
               <AlertDescription>
-                O Project Canvas não pode ser editado em dispositivos móveis. 
+                O Canvas do projeto não pode ser editado em dispositivos móveis.
                 Por favor, acesse através de um computador ou tablet para editar o canvas do projeto.
               </AlertDescription>
             </Alert>

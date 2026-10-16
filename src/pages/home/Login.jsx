@@ -46,8 +46,8 @@ import { useAuth } from "@/contexts/AuthContext";
 const formSchema = z.object({
   email: z
     .string()
-    .min(1, { message: "Email é obrigatório" })
-    .email({ message: "Email inválido" }),
+    .min(1, { message: "E-mail é obrigatório" })
+    .email({ message: "E-mail inválido" }),
   senha: z.string().min(1, { message: "Senha é obrigatória" }),
 });
 
@@ -131,7 +131,7 @@ export function Login() {
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-gray-700">Email</FormLabel>
+                      <FormLabel className="text-gray-700">E-mail</FormLabel>
                       <FormControl>
                         <div className="relative">
                           <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />

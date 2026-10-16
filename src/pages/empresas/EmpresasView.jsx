@@ -76,9 +76,9 @@ export const EmpresasView = () => {
       ) : (
         <div className="grid grid-cols-1 mt-5 lg:grid-cols-2 gap-6 w-full">
           <Field label="Nome" value={`${empresa.nome}`} />
-          <Field label="Email" value={`${empresa.email}`} />
+          <Field label="E-mail" value={`${empresa.email}`} />
           <Field
-            label="Telefone/ceular"
+            label="Telefone/celular"
             value={formatPhone(empresa.telefone)}
           />
           <Field label="Área de atuação" value={`${empresa.area || "-"}`} />

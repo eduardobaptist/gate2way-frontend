@@ -163,8 +163,8 @@ export const ImpulsosEdit = () => {
   };
 
   return (
-    <MainWrapper title="Editar impulso acadêmico">
-      <div className="flex items-center justify-between">
+    <MainWrapper title="Editar impulso acadêmico" contentClassName="mx-auto max-w-4xl">
+      <div className="flex flex-wrap items-center gap-3 mb-6">
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button
@@ -196,7 +196,7 @@ export const ImpulsosEdit = () => {
           </AlertDialogContent>
         </AlertDialog>
         <Button
-          className="bg-green-500 text-white font-bold hover:text-white hover:bg-green-600"
+          className="bg-green-700 text-white font-bold hover:text-white hover:bg-green-800"
           variant="outline"
           onClick={handleSave}
           disabled={isSubmitting}
@@ -232,7 +232,7 @@ export const ImpulsosEdit = () => {
                     <FormLabel>
                       Descrição <RequiredFieldSpan />
                     </FormLabel>
-                    <FormControl>
+                    <FormControl aria-required="true">
                       <Input type="text" disabled={isSubmitting} {...field} />
                     </FormControl>
                     <FormMessage />
@@ -245,7 +245,7 @@ export const ImpulsosEdit = () => {
                 name="valor"
                 render={({ field }) => (
                   <FormItem className="col-span-2 md:col-span-1">
-                    <FormLabel>Valor</FormLabel>
+                    <FormLabel>Valor (opcional)</FormLabel>
                     <FormControl>
                       <Input
                         type="text"
@@ -283,13 +283,13 @@ export const ImpulsosEdit = () => {
                 control={form.control}
                 name="data_inicio"
                 render={({ field }) => (
-                  <FormItem className="flex flex-col">
+                  <FormItem className="col-span-2 md:col-span-1 flex flex-col">
                     <FormLabel>
                       Data de início <RequiredFieldSpan />
                     </FormLabel>
                     <Popover>
                       <PopoverTrigger asChild>
-                        <FormControl>
+                        <FormControl aria-required="true">
                           <Button
                             variant={"outline"}
                             className={cn(
@@ -324,13 +324,13 @@ export const ImpulsosEdit = () => {
                 control={form.control}
                 name="data_fim"
                 render={({ field }) => (
-                  <FormItem className="flex flex-col">
+                  <FormItem className="col-span-2 md:col-span-1 flex flex-col">
                     <FormLabel>
                       Data de término <RequiredFieldSpan />
                     </FormLabel>
                     <Popover>
                       <PopoverTrigger asChild>
-                        <FormControl>
+                        <FormControl aria-required="true">
                           <Button
                             variant={"outline"}
                             className={cn(

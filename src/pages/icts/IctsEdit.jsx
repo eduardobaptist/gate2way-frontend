@@ -23,6 +23,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription,
 } from "@/components/ui/form";
 import { toast } from "@/hooks/use-toast";
 import InputMask from "react-input-mask";
@@ -55,9 +56,9 @@ const ictFormSchema = z.object({
   cnpj: z.string().optional(),
   email: z
     .string()
-    .min(1, "Email é obrigatório")
-    .max(100, "Email não deve exceder 100 caracteres")
-    .email("Email inválido"),
+    .min(1, "E-mail é obrigatório")
+    .max(100, "E-mail não deve exceder 100 caracteres")
+    .email("E-mail inválido"),
   endereco: z.string().optional(),
   uf: z.string().max(2).optional(),
   cidade: z.string().max(100).optional(),
@@ -129,7 +130,7 @@ export const IctsEdit = () => {
         form.reset({
           nome: ict.nome,
           razao_social: ict.razao_social,
-          cnpj: ict.cnpj,
+          cnpj: ict.cnpj ?? "",
           email: ict.email,
           endereco: ict.endereco,
           uf: ict.uf || "",
@@ -210,8 +211,8 @@ export const IctsEdit = () => {
   };
 
   return (
-    <MainWrapper title="Editar ICT">
-      <div className="flex items-center justify-between">
+    <MainWrapper title="Editar ICT" contentClassName="mx-auto max-w-4xl">
+      <div className="flex flex-wrap items-center gap-3 mb-6">
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button
@@ -248,7 +249,7 @@ export const IctsEdit = () => {
           </AlertDialogContent>
         </AlertDialog>
         <Button
-          className="bg-green-500 text-white font-bold hover:text-white hover:bg-green-600"
+          className="bg-green-700 text-white font-bold hover:text-white hover:bg-green-800"
           variant="outline"
           onClick={handleSave}
           disabled={isSubmitting}
@@ -284,7 +285,7 @@ export const IctsEdit = () => {
                     <FormLabel>
                       Nome <RequiredFieldSpan />
                     </FormLabel>
-                    <FormControl>
+                    <FormControl aria-required="true">
                       <Input type="text" disabled={isSubmitting} {...field} />
                     </FormControl>
                     <FormMessage />
@@ -292,15 +293,30 @@ export const IctsEdit = () => {
                 )}
               />
 
+            {/* UX Gate2Way: CNPJ já existe no domínio e no envio; apenas expõe o campo opcional. */}
+            <FormField
+              control={form.control}
+              name="cnpj"
+              render={({ field }) => (
+                <FormItem className="col-span-2 md:col-span-1">
+                  <FormLabel>CNPJ (opcional)</FormLabel>
+                  <FormControl>
+                    <Input type="text" placeholder="00.000.000/0000-00" disabled={isSubmitting} {...field} value={field.value ?? ""} />
+                  </FormControl>
+                  <FormDescription>Deixe em branco para manter o CNPJ atual.</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
               <FormField
                 control={form.control}
                 name="email"
                 render={({ field }) => (
                   <FormItem className="col-span-2 md:col-span-1">
                     <FormLabel>
-                      Email <RequiredFieldSpan />
+                      E-mail <RequiredFieldSpan />
                     </FormLabel>
-                    <FormControl>
+                    <FormControl aria-required="true">
                       <Input type="email" disabled={isSubmitting} {...field} />
                     </FormControl>
                     <FormMessage />
@@ -366,7 +382,7 @@ export const IctsEdit = () => {
                 name="foto_perfil"
                 render={({ field: { value, onChange, ...fieldProps } }) => (
                   <FormItem className="col-span-2 md:col-span-1">
-                    <FormLabel>Foto de Perfil</FormLabel>
+                    <FormLabel>Logo da instituição</FormLabel>
                     <FormControl>
                       <Input
                         type="file"

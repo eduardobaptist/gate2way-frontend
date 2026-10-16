@@ -7,7 +7,8 @@ export const Layout = () => {
   return (
     <SidebarProvider>
       <AppSidebar />
-      <main className="w-full">
+      {/* UX Gate2Way: permite rolagem dentro da tabela sem alargar a página. */}
+      <main className="w-full min-w-0 flex-1">
         <Outlet />
       </main>
     </SidebarProvider>

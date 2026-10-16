@@ -159,7 +159,7 @@ export function Home() {
                     <LayoutPanelTop className="h-5 w-5" />
                   </div>
                   <div className="space-y-2">
-                    <h3 className="text-xl font-bold">Project Canvas</h3>
+                    <h3 className="text-xl font-bold">Canvas do projeto</h3>
                     <p className="text-muted-foreground">
                       Visualize todo o ciclo do projeto em um único lugar.
                       Defina objetivos, marcos e resultados esperados com

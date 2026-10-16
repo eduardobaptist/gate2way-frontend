@@ -152,7 +152,7 @@ export const PropostasList = () => {
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8">
+                  <TableCell colSpan={5} className="text-center py-8">
                     <div className="flex items-center justify-center">
                       <Loader2 className="h-6 w-6 animate-spin mr-2" />
                       Carregando propostas...
@@ -162,7 +162,7 @@ export const PropostasList = () => {
               ) : filteredPropostas.length === 0 ? (
                 <TableRow>
                   <TableCell
-                    colSpan={7}
+                    colSpan={5}
                     className="text-center py-8 text-gray-500"
                   >
                     Nenhuma proposta encontrada.

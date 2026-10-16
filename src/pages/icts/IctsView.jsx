@@ -76,8 +76,8 @@ export const IctsView = () => {
       ) : (
         <div className="grid grid-cols-1 mt-5 lg:grid-cols-2 gap-6 w-full">
           <Field label="Nome" value={`${icts.nome}`} />
-          <Field label="Email" value={`${icts.email}`} />
-          <Field label="Telefone" value={formatPhone(icts.telefone)} />
+          <Field label="E-mail" value={`${icts.email}`} />
+          <Field label="Telefone/celular" value={formatPhone(icts.telefone)} />
           <div className="space-y-1.5">
             <div className="text-sm font-semibold text-gray-900">Site</div>
             <div className="text-sm text-gray-600">

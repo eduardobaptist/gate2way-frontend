@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Search, PlusCircle, Filter, Loader2, AlertCircle, Cog } from "lucide-react"
+import { Search, PlusCircle, Filter, Loader2, AlertCircle } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Link } from "react-router-dom"
 import { toast } from "@/hooks/use-toast"
@@ -55,11 +55,11 @@ export const ImpulsosList = () => {
     const searchLower = searchTerm.toLowerCase()
     switch (filterType) {
       case "descricao":
-        return impulso.descricao.toLowerCase().includes(searchLower)
+        return impulso.descricao?.toLowerCase().includes(searchLower)
       case "valor":
         return impulso.valor > Number.parseFloat(searchLower)
       case "dataCriacao":
-        return new Date(impulso.createdAt).toLocaleDateString().toLowerCase().includes(searchLower)
+        return formatDatetime(impulso.createdAt, false).toLowerCase().includes(searchLower)
       default:
         return true
     }
@@ -70,7 +70,7 @@ export const ImpulsosList = () => {
       <div className="grid grid-cols-2 gap-3">
         <div className="flex col-span-2 md:col-span-1">
           <Select defaultValue="nome" onValueChange={(value) => setFilterType(value)}>
-            <SelectTrigger className="w-max rounded-r-none border-r-0">
+            <SelectTrigger aria-label="Campo de busca" className="shrink-0 w-max rounded-r-none border-r-0">
               <SelectValue>
                 <div className="flex items-center">
                   <Filter className="mr-2 h-4 w-4" />
@@ -91,7 +91,8 @@ export const ImpulsosList = () => {
               <Input
                 type="text"
                 placeholder="Buscar"
-                className="rounded-l-none pl-3"
+                aria-label="Buscar registros"
+                className="rounded-l-none pl-3 pr-10"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -117,11 +118,13 @@ export const ImpulsosList = () => {
           <Table className="min-w-full">
             <TableHeader>
               <TableRow className="hover:bg-transparent">
-                <TableHead className="w-[50px]"></TableHead>
+
                 <TableHead className="min-w-[300px]">Descrição</TableHead>
-                <TableHead className="min-w-[200px] text-right">Valor</TableHead>
+                <TableHead className="min-w-[140px] text-right">Valor</TableHead>
+                <TableHead>Vínculo</TableHead>
                 <TableHead className="whitespace-nowrap">Data de criação</TableHead>
-                <TableHead className="whitespace-nowrap">Alteração</TableHead>
+                <TableHead className="whitespace-nowrap">Data de alteração</TableHead>
+              <TableHead className="w-16 text-right">Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -151,21 +154,13 @@ export const ImpulsosList = () => {
               ) : (
                 filteredImpulsos.map((impulso) => (
                   <TableRow key={impulso.id} className="group hover:bg-gray-50/50 transition-colors">
-                    <TableCell>
-                      <ImpulsosActions impulso={impulso} onRefresh={fetchImpulsos} />
-                    </TableCell>
+
                     <TableCell>
                       <div className="flex items-center gap-2 max-w-[400px]">
-                        <span className="truncate">{impulso.descricao}</span>
+                        <span className="truncate" title={impulso.descricao}>{impulso.descricao}</span>
                       </div>
                     </TableCell>
                     <TableCell className="text-right">
-                      {!impulso.empresa_id && (
-                        <Badge className="border-purple-200 bg-purple-50 text-purple-700 hover:bg-purple-100 font-medium md:mr-2 mb-2">
-                          <Cog className="h-3.5 w-3.5 mr-1" />
-                          Padrão do sistema
-                        </Badge>
-                      )}
                       <Badge
                         variant="outline"
                         className={`font-medium ${Number.parseFloat(impulso.valor) > 0
@@ -173,10 +168,16 @@ export const ImpulsosList = () => {
                             : "bg-slate-100 text-slate-800 border-slate-200 hover:bg-slate-100 hover:text-slate-800"
                           }`}
                       >
-                        {Number.parseFloat(impulso.valor).toLocaleString("pt-BR", {
+                        {impulso.valor == null || impulso.valor === "" ? "—" : Number.parseFloat(impulso.valor).toLocaleString("pt-BR", {
                           style: "currency",
                           currency: "BRL",
                         })}
+                      </Badge>
+                    </TableCell>
+                    {/* UX Gate2Way: registros sem empresa são disponibilizados como padrão do sistema. */}
+                    <TableCell>
+                      <Badge variant="outline" title={impulso.empresa_id ? "Impulso vinculado a uma empresa" : "Impulso sem empresa vinculada"}>
+                        {impulso.empresa_id ? "Empresa" : "Padrão do sistema"}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground">
@@ -184,6 +185,9 @@ export const ImpulsosList = () => {
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground">
                       <div className="flex items-center gap-1">{formatDatetime(impulso.updatedAt) || "-"}</div>
+                    </TableCell>
+                  <TableCell className="text-right">
+                      <ImpulsosActions impulso={impulso} onRefresh={fetchImpulsos} />
                     </TableCell>
                   </TableRow>
                 ))

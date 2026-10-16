@@ -44,7 +44,7 @@ export const UsuariosList = () => {
   const filters = [
     { value: "nome", label: "Nome" },
     { value: "organizacao", label: "Organização" }, // novo filtro
-    { value: "email", label: "Email" },
+    { value: "email", label: "E-mail" },
     { value: "tipo", label: "Tipo" },
     { value: "dataCriacao", label: "Data de criação" },
   ];
@@ -84,15 +84,9 @@ export const UsuariosList = () => {
       case "tipo":
         return usuario.tipo.toLowerCase().includes(searchLower);
       case "dataCriacao":
-        return new Date(usuario.createdAt)
-          .toLocaleDateString()
-          .toLowerCase()
-          .includes(searchLower);
+        return formatDatetime(usuario.createdAt, false).toLowerCase().includes(searchLower);
       case "organizacao":
-        const org =
-          usuario.tipo === "ict"
-            ? usuario?.Responsavels?.[0]?.Ict?.nome
-            : usuario?.Responsavels?.[0]?.Empresa?.nome;
+        const org = usuario.Responsavels?.[0]?.Empresa?.nome || usuario.Responsavels?.[0]?.Ict?.nome;
 
         return org?.toLowerCase().includes(searchLower);
       default:
@@ -121,7 +115,7 @@ export const UsuariosList = () => {
             defaultValue="nome"
             onValueChange={(value) => setFilterType(value)}
           >
-            <SelectTrigger className="w-max rounded-r-none border-r-0">
+            <SelectTrigger aria-label="Campo de busca" className="shrink-0 w-max rounded-r-none border-r-0">
               <SelectValue>
                 <div className="flex items-center">
                   <Filter className="mr-2 h-4 w-4" />
@@ -144,7 +138,8 @@ export const UsuariosList = () => {
               <Input
                 type="text"
                 placeholder="Buscar"
-                className="rounded-l-none pl-3"
+                aria-label="Buscar registros"
+                className="rounded-l-none pl-3 pr-10"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -170,12 +165,13 @@ export const UsuariosList = () => {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead></TableHead>
+
                 <TableHead>Nome</TableHead>
                 <TableHead>Tipo</TableHead>
                 <TableHead>Organização</TableHead>
-                <TableHead>Email</TableHead>
+                <TableHead>E-mail</TableHead>
                 <TableHead>Data de criação</TableHead>
+              <TableHead className="w-16 text-right">Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -207,14 +203,11 @@ export const UsuariosList = () => {
                   </TableCell>
                 </TableRow>
               ) : (
-                filteredUsuarios.map((usuario) => (
-                  <TableRow key={usuario.id}>
-                    <TableCell>
-                      <UsuariosActions
-                        usuario={usuario}
-                        onRefresh={fetchUsuarios}
-                      />
-                    </TableCell>
+                filteredUsuarios.map((usuario) => {
+                  // UX Gate2Way: usa o vínculo real; sem organização, mostra somente o traço.
+                  const organizacao = usuario.Responsavels?.[0]?.Empresa || usuario.Responsavels?.[0]?.Ict;
+                  return (<TableRow key={usuario.id}>
+
                     <TableCell>{usuario.nome}</TableCell>
                     <TableCell>
                       <Badge variant="outline">
@@ -225,26 +218,24 @@ export const UsuariosList = () => {
                             usuario.tipo.slice(1)}
                       </Badge>
                     </TableCell>
-                    <TableCell className="flex items-center gap-2">
-                      <OrganizationLogo
-                        src={usuario.tipo === "ict"
-                          ? (usuario.Responsavels?.[0]?.Ict?.foto_perfil ? `${import.meta.env.VITE_API_URL}${usuario.Responsavels[0].Ict.foto_perfil}` : null)
-                          : (usuario.Responsavels?.[0]?.Empresa?.foto_perfil ? `${import.meta.env.VITE_API_URL}${usuario.Responsavels[0].Empresa.foto_perfil}` : null)}
-                        name={usuario.tipo === "ict" ? usuario.Responsavels?.[0]?.Ict?.nome : usuario.Responsavels?.[0]?.Empresa?.nome}
-                        className="h-8 w-8 rounded-full border p-1"
-                      />
-                      <span>
-                        {usuario.tipo === "ict"
-                          ? usuario?.Responsavels?.[0]?.Ict?.nome || "-"
-                          : usuario?.Responsavels?.[0]?.Empresa?.nome || "-"}
-                      </span>
+                    <TableCell>
+                      {organizacao ? <div className="flex items-center gap-2">
+                        <OrganizationLogo src={organizacao.foto_perfil ? `${import.meta.env.VITE_API_URL}${organizacao.foto_perfil}` : null} name={organizacao.nome} className="h-8 w-8 rounded-full border p-1" />
+                        <span className="max-w-[240px] truncate" title={organizacao.nome}>{organizacao.nome || "—"}</span>
+                      </div> : "—"}
                     </TableCell>
                     <TableCell>{usuario.email}</TableCell>
                     <TableCell>
                       {formatDatetime(usuario.createdAt) || "-"}
                     </TableCell>
-                  </TableRow>
-                ))
+                  <TableCell className="text-right">
+                      <UsuariosActions
+                        usuario={usuario}
+                        onRefresh={fetchUsuarios}
+                      />
+                    </TableCell>
+                  </TableRow>);
+                })
               )}
             </TableBody>
           </Table>

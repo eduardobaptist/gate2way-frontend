@@ -68,18 +68,15 @@ export const ProgramasList = () => {
     const searchLower = searchTerm.toLowerCase();
     switch (filterType) {
       case "nome":
-        return programa.nome.toLowerCase().includes(searchLower);
+        return programa.nome?.toLowerCase().includes(searchLower);
       case "empresa":
         return programa.Empresa?.nome?.toLowerCase().includes(searchLower);
       case "rota":
         return programa.Rota?.nome?.toLowerCase().includes(searchLower);
       case "descricao":
-        return programa.descricao.toLowerCase().includes(searchLower);
+        return programa.descricao?.toLowerCase().includes(searchLower);
       case "dataCricao":
-        return new Date(programa.createdAt)
-          .toLocaleDateString()
-          .toLowerCase()
-          .includes(searchLower);
+        return formatDatetime(programa.createdAt, false).toLowerCase().includes(searchLower);
       default:
         return true;
     }
@@ -93,7 +90,7 @@ export const ProgramasList = () => {
             defaultValue="nome"
             onValueChange={(value) => setFilterType(value)}
           >
-            <SelectTrigger className="w-max rounded-r-none border-r-0">
+            <SelectTrigger aria-label="Campo de busca" className="shrink-0 w-max rounded-r-none border-r-0">
               <SelectValue>
                 <div className="flex items-center">
                   <Filter className="mr-2 h-4 w-4" />
@@ -116,7 +113,8 @@ export const ProgramasList = () => {
               <Input
                 type="text"
                 placeholder="Buscar"
-                className="rounded-l-none pl-3"
+                aria-label="Buscar registros"
+                className="rounded-l-none pl-3 pr-10"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -142,13 +140,14 @@ export const ProgramasList = () => {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead></TableHead>
+
                 <TableHead>Nome</TableHead>
                 <TableHead>Descrição</TableHead>
                 <TableHead>Rota</TableHead>
                 <TableHead>Empresa</TableHead>
                 <TableHead>Data de criação</TableHead>
-                <TableHead>Data de Alteração</TableHead>
+                <TableHead>Data de alteração</TableHead>
+              <TableHead className="w-16 text-right">Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -182,27 +181,28 @@ export const ProgramasList = () => {
               ) : (
                 filteredProgramas.map((programa) => (
                   <TableRow key={programa.id}>
+
+                    <TableCell>{programa.nome || "—"}</TableCell>
                     <TableCell>
+                      <div className="max-w-md relative group">
+                        <div className="line-clamp-2 min-w-[160px]" title={programa.descricao}>
+                          {programa.descricao || "—"}
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell>{programa.Rota?.nome || "—"}</TableCell>
+                    <TableCell>{programa.Rota?.Empresa?.nome || "—"}</TableCell>
+                    <TableCell className="whitespace-nowrap" title={formatDatetime(programa.createdAt)}>
+                      {formatDatetime(programa.createdAt, false)}
+                    </TableCell>
+                    <TableCell className="whitespace-nowrap" title={formatDatetime(programa.updatedAt)}>
+                      {formatDatetime(programa.updatedAt, false)}
+                    </TableCell>
+                  <TableCell className="text-right">
                       <ProgramasActions
                         programa={programa}
                         onRefresh={fetchProgramas}
                       />
-                    </TableCell>
-                    <TableCell>{programa.nome}</TableCell>
-                    <TableCell>
-                      <div className="max-w-md relative group">
-                        <div className="truncate group-hover:whitespace-normal transition-all duration-300 ease-in-out hover:scale-100 opacity-90 hover:opacity-100">
-                          {programa.descricao}
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>{programa.Rota?.nome || "-"}</TableCell>
-                    <TableCell>{programa.Rota?.Empresa?.nome || "-"}</TableCell>
-                    <TableCell>
-                      {formatDatetime(programa.createdAt) || "-"}
-                    </TableCell>
-                    <TableCell>
-                      {formatDatetime(programa.updatedAt) || "-"}
                     </TableCell>
                   </TableRow>
                 ))

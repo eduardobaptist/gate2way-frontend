@@ -55,9 +55,9 @@ const empresaFormSchema = z.object({
   cnpj: z.string().optional(),
   email: z
     .string()
-    .min(1, "Email é obrigatório")
-    .max(100, "Email não deve exceder 100 caracteres")
-    .email("Email inválido"),
+    .min(1, "E-mail é obrigatório")
+    .max(100, "E-mail não deve exceder 100 caracteres")
+    .email("E-mail inválido"),
   endereco: z.string().optional(),
   uf: z.string().max(2).optional(),
   cidade: z.string().max(100).optional(),
@@ -217,8 +217,8 @@ export const EmpresasEdit = () => {
   };
 
   return (
-    <MainWrapper title="Editar empresa">
-      <div className="flex items-center justify-between">
+    <MainWrapper title="Editar empresa" contentClassName="mx-auto max-w-4xl">
+      <div className="flex flex-wrap items-center gap-3 mb-6">
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button
@@ -255,7 +255,7 @@ export const EmpresasEdit = () => {
           </AlertDialogContent>
         </AlertDialog>
         <Button
-          className="bg-green-500 text-white font-bold hover:text-white hover:bg-green-600"
+          className="bg-green-700 text-white font-bold hover:text-white hover:bg-green-800"
           variant="outline"
           onClick={handleSave}
           disabled={isSubmitting}
@@ -291,7 +291,7 @@ export const EmpresasEdit = () => {
                     <FormLabel>
                       Nome <RequiredFieldSpan />
                     </FormLabel>
-                    <FormControl>
+                    <FormControl aria-required="true">
                       <Input type="text" disabled={isSubmitting} {...field} />
                     </FormControl>
                     <FormMessage />
@@ -305,9 +305,9 @@ export const EmpresasEdit = () => {
                 render={({ field }) => (
                   <FormItem className="col-span-2 md:col-span-1">
                     <FormLabel>
-                      Email <RequiredFieldSpan />
+                      E-mail <RequiredFieldSpan />
                     </FormLabel>
-                    <FormControl>
+                    <FormControl aria-required="true">
                       <Input type="email" disabled={isSubmitting} {...field} />
                     </FormControl>
                     <FormMessage />
@@ -387,7 +387,7 @@ export const EmpresasEdit = () => {
                 name="foto_perfil"
                 render={({ field: { value, onChange, ...fieldProps } }) => (
                   <FormItem className="col-span-2 md:col-span-1">
-                    <FormLabel>Foto de Perfil</FormLabel>
+                    <FormLabel>Logo da empresa</FormLabel>
                     <FormControl>
                       <Input
                         type="file"

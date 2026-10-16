@@ -30,13 +30,13 @@ import {
 } from "@/components/ui/table";
 import {
   DollarSign,
-  FolderKanban,
   Calendar,
   Grid,
   List,
   Search,
   PlusCircle,
   Filter,
+  FolderKanban,
   EyeOff,
   Eye,
   Hourglass,
@@ -115,7 +115,7 @@ export const ProjetosList = () => {
             defaultValue="nome"
             onValueChange={(value) => setFilterType(value)}
           >
-            <SelectTrigger className="w-max rounded-r-none border-r-0">
+            <SelectTrigger aria-label="Campo de busca" className="shrink-0 w-max rounded-r-none border-r-0">
               <SelectValue>
                 <div className="flex items-center">
                   <Filter className="mr-2 h-4 w-4" />
@@ -141,7 +141,7 @@ export const ProjetosList = () => {
                 value={searchTerm}
                 onChange={(event) => setSearchTerm(event.target.value)}
                 aria-label="Buscar projetos"
-                className="rounded-l-none pl-3"
+                className="rounded-l-none pl-3 pr-10"
               />
             </div>
             <Search className="absolute right-3 top-1/2 -translate-y-1/2 transform h-4 w-4 text-gray-400" />
@@ -186,6 +186,15 @@ export const ProjetosList = () => {
                   key={projeto.id}
                   className="w-full min-w-0 col-span-1 shadow-md flex flex-col relative transition-all duration-300 ease-in-out hover:shadow-xl hover:scale-[1.0] hover:z-10 cursor-pointer"
                   onClick={() => handleCardOnClick(projeto.id)}
+                  role="link"
+                  tabIndex={0}
+                  aria-label={`Abrir projeto ${projeto.nome}`}
+                  onKeyDown={(event) => {
+                    if (event.target === event.currentTarget && (event.key === "Enter" || event.key === " ")) {
+                      event.preventDefault();
+                      handleCardOnClick(projeto.id);
+                    }
+                  }}
                 >
                   {projeto.total_interesses &&
                     projeto.status === "PUBLICADO" &&
@@ -267,7 +276,7 @@ export const ProjetosList = () => {
                 </Card>
               ))
             ) : isLoading ? (
-              <div className="col-span-full flex justify-center items-center p-8 bg-white rounded-lg border border-slate-200 h-[calc(100vh-280px)] min-h-[500px] w-full">
+              <div className="col-span-full flex justify-center items-center p-8 bg-white rounded-lg border border-slate-200 min-h-[220px] w-full">
                 <div className="flex flex-col items-center text-center">
                   <Loader2 className="h-12 w-12 animate-spin text-slate-400 mb-4" />
                   <h2 className="text-2xl font-semibold text-slate-700">
@@ -276,7 +285,7 @@ export const ProjetosList = () => {
                 </div>
               </div>
             ) : (
-              <div className="col-span-full flex justify-center items-center p-8 bg-white rounded-lg border border-slate-200 h-[calc(100vh-280px)] min-h-[500px] w-full">
+              <div className="col-span-full flex justify-center items-center p-8 bg-white rounded-lg border border-slate-200 min-h-[220px] w-full">
                 <div className="flex flex-col items-center text-center max-w-md">
                   <div className="bg-slate-50 p-6 rounded-full mb-6">
                     <SearchX className="h-16 w-16 text-slate-400" />
@@ -312,7 +321,7 @@ export const ProjetosList = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead></TableHead>
+
                   <TableHead>Nome do Projeto</TableHead>
                   <TableHead>Descrição</TableHead>
                   <TableHead>Empresa</TableHead>
@@ -320,12 +329,13 @@ export const ProjetosList = () => {
                   <TableHead className="text-right">
                     Impulso Acadêmico
                   </TableHead>
-                </TableRow>
+                <TableHead className="w-16 text-right">Ações</TableHead>
+              </TableRow>
               </TableHeader>
               <TableBody>
                 {isLoading ? (
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center py-8">
+                    <TableCell colSpan={6} className="text-center py-8">
                       <div className="flex items-center justify-center">
                         <Loader2 className="h-6 w-6 animate-spin mr-2" />
                         Carregando projetos...
@@ -386,7 +396,15 @@ export const ProjetosList = () => {
                       <TableCell className="text-right">
                         {projeto.impulso_id ? "Com impulso" : "Sem impulso"}
                       </TableCell>
-                    </TableRow>
+                    <TableCell className="text-right">
+                        <div className="relative">
+                          <ProjetosActions
+                            projeto={projeto}
+                            onRefresh={fetchProjetos}
+                          />
+                        </div>
+                      </TableCell>
+                  </TableRow>
                   ))
                 )}
               </TableBody>

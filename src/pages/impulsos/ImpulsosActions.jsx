@@ -21,7 +21,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Menu, Trash2, Edit2, Eye } from "lucide-react";
+import { MoreHorizontal, Trash2, Edit2, Eye } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
 import api from "@/axios";
@@ -62,19 +62,27 @@ export const ImpulsosActions = ({ impulso, onRefresh }) => {
 
   return (
     <TooltipProvider delayDuration={100}>
-      <Tooltip>
-        <TooltipTrigger>
-          <DropdownMenu
+      <DropdownMenu
             open={isDropdownOpen}
             onOpenChange={(open) => {
               setIsDropdownOpen(open);
             }}
           >
-            <DropdownMenuTrigger className="focus:outline-none">
-              <Menu className="h-6 w-6 text-gray-500 hover:text-gray-700" />
-            </DropdownMenuTrigger>
-
-            <DropdownMenuContent align="end" className="w-48">
+          {/* UX Gate2Way: o tooltip usa o próprio botão; evita botões aninhados e preserva o teclado. */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <DropdownMenuTrigger
+                type="button"
+                aria-label="Ações"
+                title="Ações"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-md text-slate-600 hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                <MoreHorizontal className="h-6 w-6 text-gray-500 hover:text-gray-700" />
+              </DropdownMenuTrigger>
+            </TooltipTrigger>
+            <TooltipContent><p>Ações</p></TooltipContent>
+          </Tooltip>
+          <DropdownMenuContent align="end" className="w-48">
               <DropdownMenuItem
                 onClick={handleView}
                 className="flex items-center gap-2 cursor-pointer"
@@ -102,12 +110,7 @@ export const ImpulsosActions = ({ impulso, onRefresh }) => {
                 <span>Deletar</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
-          </DropdownMenu>
-        </TooltipTrigger>
-        <TooltipContent>
-          <p>Opções</p>
-        </TooltipContent>
-      </Tooltip>
+        </DropdownMenu>
 
       <AlertDialog
         open={isDeleteDialogOpen}
@@ -115,7 +118,7 @@ export const ImpulsosActions = ({ impulso, onRefresh }) => {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Tem certeza que deseja excluir?</AlertDialogTitle>
+            <AlertDialogTitle>Excluir “{impulso.descricao}”?</AlertDialogTitle>
             <AlertDialogDescription>
               Esta ação não pode ser desfeita. Todos os dados relacionados a
               este impulso serão permanentemente excluídos.
