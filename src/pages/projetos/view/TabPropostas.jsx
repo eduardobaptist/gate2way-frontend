@@ -1,5 +1,6 @@
+import { OrganizationLogo } from "@/components/OrganizationLogo";
 import { useState, useMemo } from "react";
-import { CheckCircle, XCircle, ImageOff } from "lucide-react";
+import { CheckCircle, XCircle, GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
@@ -101,17 +102,7 @@ export const TabPropostas = ({ projeto, onRefresh }) => {
       <div className="border border-gray-100 rounded-lg p-6 bg-white shadow-sm hover:shadow-lg hover:border-gray-200">
         <div className="flex flex-col space-y-6">
           <div className="flex items-center gap-4 pb-4 border-b border-gray-100">
-            <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0 border p-1 flex items-center justify-center">
-              {ict?.foto_perfil ? (
-                <img
-                  src={`${import.meta.env.VITE_API_URL}${ict?.foto_perfil}`}
-                  className="w-full h-full object-contain rounded-full"
-                  alt={`${ict?.nome} profile`}
-                />
-              ) : (
-                <ImageOff className="w-6 h-6 text-muted-foreground" />
-              )}
-            </div>
+            <OrganizationLogo src={ict?.foto_perfil ? `${import.meta.env.VITE_API_URL}${ict.foto_perfil}` : null} name={ict?.nome} icon={GraduationCap} className="h-12 w-12 rounded-full border p-1" />
             <div>
               <h3 className="text-lg font-semibold text-gray-900">
                 {ict?.nome}

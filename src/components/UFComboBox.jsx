@@ -71,6 +71,7 @@ export const UFComboBox = ({ form, isSubmitting }) => {
                 <Button
                   variant="outline"
                   role="combobox"
+                  aria-expanded={openUF}
                   disabled={isSubmitting}
                   className={cn(
                     "w-full justify-between",
@@ -94,8 +95,11 @@ export const UFComboBox = ({ form, isSubmitting }) => {
                       value={uf.label}
                       key={uf.value}
                       onSelect={() => {
-                        form.setValue("uf", uf.value);
-                        form.setValue("cidade", "");
+                        // Selecionar a mesma UF preserva a cidade atual.
+                        if (field.value !== uf.value) {
+                          form.setValue("uf", uf.value);
+                          form.setValue("cidade", "");
+                        }
                         setOpenUF(false);
                       }}
                     >

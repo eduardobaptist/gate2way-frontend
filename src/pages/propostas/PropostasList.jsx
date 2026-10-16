@@ -1,3 +1,4 @@
+import { OrganizationLogo } from "@/components/OrganizationLogo";
 import { MainWrapper } from "@/components/MainWrapper";
 import { useState, useEffect } from "react";
 import {
@@ -20,7 +21,6 @@ import {
   Search,
   Filter,
   Loader2,
-  ImageOff,
   SquareArrowDownRight,
   SquareArrowUp,
   SquareArrowUpRight,
@@ -196,20 +196,7 @@ export const PropostasList = () => {
                     </TableCell>
                     <TableCell>
                       <div className="max-w-md relative flex items-center group">
-                        <span className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 border p-1 mr-2 flex items-center justify-center">
-                          {proposta?.Oferta?.Projeto?.Programa?.Rota?.Empresa
-                            ?.foto_perfil ? (
-                            <img
-                              src={`${import.meta.env.VITE_API_URL}${
-                                proposta.Oferta.Projeto.Programa.Rota.Empresa
-                                  .foto_perfil
-                              }`}
-                              className="w-full h-full object-contain"
-                            />
-                          ) : (
-                            <ImageOff className="w-4 h-4 text-muted-foreground" />
-                          )}
-                        </span>
+                        <OrganizationLogo src={proposta.Oferta?.Projeto?.Programa?.Rota?.Empresa?.foto_perfil ? `${import.meta.env.VITE_API_URL}${proposta.Oferta.Projeto.Programa.Rota.Empresa.foto_perfil}` : null} name={proposta.Oferta?.Projeto?.Programa?.Rota?.Empresa?.nome} className="mr-2 rounded-full border p-1" />
                         <div className="truncate group-hover:whitespace-normal transition-all duration-300 ease-in-out hover:scale-100 opacity-90 hover:opacity-100">
                           {
                             proposta?.Oferta?.Projeto?.Programa?.Rota?.Empresa

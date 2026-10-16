@@ -1,3 +1,4 @@
+import { OrganizationLogo } from "@/components/OrganizationLogo";
 import { MainWrapper } from "@/components/MainWrapper";
 import { useState, useEffect } from "react";
 import {
@@ -23,7 +24,6 @@ import {
   PlusCircle,
   Filter,
   Loader2,
-  ImageOff,
   Building,
   UserCog,
   GraduationCap,
@@ -226,31 +226,13 @@ export const UsuariosList = () => {
                       </Badge>
                     </TableCell>
                     <TableCell className="flex items-center gap-2">
-                      <span className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 border p-1 flex items-center justify-center">
-                        {usuario.tipo === "ict" ? (
-                          usuario?.Responsavels?.[0]?.Ict?.foto_perfil ? (
-                            <img
-                              src={`${import.meta.env.VITE_API_URL}${
-                                usuario.Responsavels[0].Ict.foto_perfil
-                              }`}
-                              alt="Foto ICT"
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <ImageOff className="w-4 h-4 text-muted-foreground" />
-                          )
-                        ) : usuario?.Responsavels?.[0]?.Empresa?.foto_perfil ? (
-                          <img
-                            src={`${import.meta.env.VITE_API_URL}${
-                              usuario.Responsavels[0].Empresa.foto_perfil
-                            }`}
-                            alt="Foto Empresa"
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <ImageOff className="w-4 h-4 text-muted-foreground" />
-                        )}
-                      </span>
+                      <OrganizationLogo
+                        src={usuario.tipo === "ict"
+                          ? (usuario.Responsavels?.[0]?.Ict?.foto_perfil ? `${import.meta.env.VITE_API_URL}${usuario.Responsavels[0].Ict.foto_perfil}` : null)
+                          : (usuario.Responsavels?.[0]?.Empresa?.foto_perfil ? `${import.meta.env.VITE_API_URL}${usuario.Responsavels[0].Empresa.foto_perfil}` : null)}
+                        name={usuario.tipo === "ict" ? usuario.Responsavels?.[0]?.Ict?.nome : usuario.Responsavels?.[0]?.Empresa?.nome}
+                        className="h-8 w-8 rounded-full border p-1"
+                      />
                       <span>
                         {usuario.tipo === "ict"
                           ? usuario?.Responsavels?.[0]?.Ict?.nome || "-"

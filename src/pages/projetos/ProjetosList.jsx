@@ -1,3 +1,4 @@
+import { OrganizationLogo } from "@/components/OrganizationLogo";
 import { MainWrapper } from "@/components/MainWrapper";
 import { ProjetosActions } from "./ProjetosActions";
 import { useState, useEffect } from "react";
@@ -29,13 +30,13 @@ import {
 } from "@/components/ui/table";
 import {
   DollarSign,
+  FolderKanban,
   Calendar,
   Grid,
   List,
   Search,
   PlusCircle,
   Filter,
-  ImageOff,
   EyeOff,
   Eye,
   Hourglass,
@@ -202,17 +203,12 @@ export const ProjetosList = () => {
                   <CardHeader className="gap-2">
                     <div className="flex items-start justify-between">
                       <div className="flex overflow-hidden max-w-[calc(100%-40px)]">
-                        <span className="w-14 h-14 rounded-full overflow-hidden flex-shrink-0 border p-1 flex items-center justify-center">
-                          {projeto?.Programa?.Rota?.Empresa?.foto_perfil ? (
-                            <img
-                              src={`${import.meta.env.VITE_API_URL}${projeto.Programa.Rota.Empresa.foto_perfil
-                                }`}
-                              className="w-full h-full object-contain"
-                            />
-                          ) : (
-                            <ImageOff />
-                          )}
-                        </span>
+                        <OrganizationLogo
+                          src={projeto.Programa?.Rota?.Empresa?.foto_perfil ? `${import.meta.env.VITE_API_URL}${projeto.Programa.Rota.Empresa.foto_perfil}` : null}
+                          name={projeto.Programa?.Rota?.Empresa?.nome}
+                          icon={FolderKanban}
+                          className="h-14 w-14 rounded-full border p-1"
+                        />
                         <div className="flex flex-col ml-2 overflow-hidden min-w-0">
                           {/* Duas linhas mantem o titulo legivel; title apresenta o nome completo. */}
                           <span title={projeto.nome || "—"} className="line-clamp-2 break-words tracking-tighter text-xl font-semibold text-foreground">

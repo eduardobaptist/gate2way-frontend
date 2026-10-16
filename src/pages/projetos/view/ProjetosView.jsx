@@ -1,3 +1,4 @@
+import { OrganizationLogo } from "@/components/OrganizationLogo";
 import { MainWrapper } from "@/components/MainWrapper";
 import { useState, useEffect } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
@@ -5,7 +6,6 @@ import {
   ArrowLeftCircle,
   Loader2,
   Heart,
-  ImageOff,
   Building2,
   Monitor,
 } from "lucide-react";
@@ -182,19 +182,7 @@ export const ProjetosView = () => {
               </DialogTitle>
               <DialogDescription className="">
                 <div className="flex items-start gap-3 mt-6 p-3 border border-gray-200 rounded-lg">
-                  <span className="w-11 h-11 rounded-full overflow-hidden flex-shrink-0 border p-1 flex items-center justify-center">
-                    {projeto?.Programa?.Rota?.Empresa?.foto_perfil ? (
-                      <img
-                        src={`${import.meta.env.VITE_API_URL}${
-                          projeto?.Programa?.Rota?.Empresa?.foto_perfil
-                        }`}
-                        alt="Foto Empresa"
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <ImageOff className="w-5 h-5 text-muted-foreground" />
-                    )}
-                  </span>
+                  <OrganizationLogo src={projeto?.Programa?.Rota?.Empresa?.foto_perfil ? `${import.meta.env.VITE_API_URL}${projeto.Programa.Rota.Empresa.foto_perfil}` : null} name={projeto?.Programa?.Rota?.Empresa?.nome} className="h-11 w-11 rounded-full border p-1" />
                   <div className="flex flex-col truncate">
                     <span className="font-semibold text-base text-left">
                       {projeto?.nome}
