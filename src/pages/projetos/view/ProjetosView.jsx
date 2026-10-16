@@ -288,7 +288,7 @@ export const ProjetosView = () => {
                   </AlertDescription>
                 </Alert>
               ) : (
-                <TabCanvas initialData={JSON.parse(projeto?.estilo)} />
+                <TabCanvas projeto={projeto} />
               )}
             </TabsContent>
           </>
