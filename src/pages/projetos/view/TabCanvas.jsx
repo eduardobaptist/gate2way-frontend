@@ -1,9 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
 import { GridStack } from "gridstack";
+import { inspectCanvas, CANVAS_FIELDS } from "@/lib/projetoCanvas";
 import "gridstack/dist/gridstack.min.css";
 import "gridstack/dist/gridstack-extra.min.css";
 
-export const TabCanvas = ({ initialData }) => {
+const CanvasGrid = ({ initialData }) => {
   const gridRef = useRef(null);
   const [grid, setGrid] = useState(null);
   const [widgetsLoaded, setWidgetsLoaded] = useState(false);
@@ -193,12 +194,6 @@ export const TabCanvas = ({ initialData }) => {
 
       const adjustedY = finalY + finalH > MAX_ROWS ? MAX_ROWS - finalH : finalY;
 
-      console.log(`ReadOnly Widget ${id}:`, {
-        savedWidget,
-        textareaValue,
-        position: { x: finalX, y: adjustedY, w: finalW, h: finalH },
-      });
-
       grid.addWidget({
         x: finalX,
         y: adjustedY,
@@ -242,4 +237,22 @@ export const TabCanvas = ({ initialData }) => {
       ></div>
     </section>
   );
+};
+
+
+export const TabCanvas = ({ projeto }) => {
+  let snapshot;
+  try { snapshot = inspectCanvas(projeto); } catch {
+    return <p role="alert">Não foi possível interpretar o Canvas com segurança. O conteúdo original foi preservado.</p>;
+  }
+  if (!snapshot.known || snapshot.conflicts.length) {
+    return <section>
+      <p role="status">{snapshot.reason}</p>
+      <p>Campos individuais disponíveis (sem conversão dos dados originais):</p>
+      <dl>{CANVAS_FIELDS.filter(key => typeof snapshot.raw[key] === "string").map(key =>
+        <div key={key}><dt>{key}</dt><dd className="whitespace-pre-wrap">{snapshot.raw[key]}</dd></div>
+      )}</dl>
+    </section>;
+  }
+  return <CanvasGrid key={String(snapshot.raw.id)} initialData={snapshot.display} />;
 };

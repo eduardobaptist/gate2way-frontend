@@ -3,7 +3,7 @@ import { GridStack } from "gridstack";
 import "gridstack/dist/gridstack.min.css";
 import "gridstack/dist/gridstack-extra.min.css";
 
-export const ProjetosProjectCanvas = ({ setCanvasData, initialData }) => {
+export const ProjetosProjectCanvas = ({ setCanvasData, initialData, onTextChange, getCurrentText }) => {
   const gridRef = useRef(null);
   const [grid, setGrid] = useState(null);
   const [widgetsLoaded, setWidgetsLoaded] = useState(false);
@@ -235,7 +235,7 @@ export const ProjetosProjectCanvas = ({ setCanvasData, initialData }) => {
       const finalY = savedWidget?.y ?? y;
       const finalW = savedWidget?.w ?? w;
       const finalH = savedWidget?.h ?? h;
-      const textareaValue = savedWidget?.textarea_value || "";
+      const textareaValue = getCurrentText?.(id) ?? savedWidget?.textarea_value ?? "";
       
       const adjustedY = finalY + finalH > MAX_ROWS ? MAX_ROWS - finalH : finalY;
     
@@ -269,11 +269,24 @@ export const ProjetosProjectCanvas = ({ setCanvasData, initialData }) => {
 
   }, [grid, initialData, widgetsLoaded, saveCanvasData]);
 
+  // A confirmed response updates only the baseline. Read live text at effect
+  // execution time so a keystroke after the response is never overwritten.
+  useEffect(() => {
+    if (!getCurrentText) return;
+    gridRef.current?.querySelectorAll("textarea").forEach(textarea => {
+      const text = getCurrentText(textarea.id);
+      if (typeof text === "string" && textarea.value !== text) textarea.value = text;
+    });
+  }, [initialData, getCurrentText]);
+
   return (
     <>
       <p className="mb-3 text-sm text-slate-700">Clique em um bloco para escrever. As alterações serão gravadas ao salvar o projeto.</p>
     <div
       ref={gridRef}
+      onInputCapture={event => {
+        if (event.target.tagName === "TEXTAREA") onTextChange?.(event.target.id, event.target.value);
+      }}
       className="grid-stack bg-muted/40 border rounded-lg w-full p-3"
       style={{ 
         height: 'calc(10 * 60px + 10 * 6px + 24px)',

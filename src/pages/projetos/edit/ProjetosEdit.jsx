@@ -3,6 +3,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useToast } from "@/hooks/use-toast";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import api from "@/axios";
+import { CANVAS_FIELDS, inspectCanvas, reconcileCanvasResponse, readyForProject, assertLoadedProject, recordText, buildProjectPayload, projectSaveError } from "@/lib/projetoCanvas";
 import { MainWrapper } from "@/components/MainWrapper";
 import { ProjetosProjectCanvas } from "@/pages/projetos/edit/ProjetosProjectCanvas";
 import { ProjetosForm } from "@/pages/projetos/edit/ProjetosForm";
@@ -33,8 +34,19 @@ export const ProjetosEdit = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const submittingRef = useRef(false);
   const [layout, setLayout] = useState("infosGerais");
-  const [canvasData, setCanvasData] = useState(null);
-  const [projectCanvasInitialData, setProjectCanvasInitialData] = useState(undefined);
+  const [, setCanvasData] = useState(null);
+  const [canvasSnapshot, setCanvasSnapshot] = useState(null);
+  const snapshotRef = useRef(null);
+  const changesRef = useRef(new Map());
+  const latestTextsRef = useRef({});
+  const fieldVersionsRef = useRef(new Map());
+  const inputVersionRef = useRef(0);
+  const editorIdRef = useRef(null);
+  const [reconciliationRequired, setReconciliationRequired] = useState(false);
+  const routeIdRef = useRef(id);
+  routeIdRef.current = id;
+  const [loadError, setLoadError] = useState("");
+  const [saveError, setSaveError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [projectData, setProjectData] = useState(null);
   const projectFormRef = useRef(null);
@@ -43,11 +55,27 @@ export const ProjetosEdit = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    const controller = new AbortController();
+    let active = true;
+    snapshotRef.current = null;
+    changesRef.current = new Map();
+    latestTextsRef.current = {};
+    fieldVersionsRef.current = new Map();
+    inputVersionRef.current = 0;
+    editorIdRef.current = null;
+    setReconciliationRequired(false);
+    setCanvasSnapshot(null);
+    setProjectData(null);
+    setLoadError("");
+    setSaveError("");
     const fetchProject = async () => {
       setIsLoading(true);
 
       try {
-        const response = await api.get(`/projetos/${id}`);
+        const response = await api.get(`/projetos/${id}`, { signal: controller.signal });
+        if (!active || String(routeIdRef.current) !== String(id)) return;
+        assertLoadedProject(response.data, id);
+        const snapshot = inspectCanvas(response.data);
         const data = {
           nome: response.data.nome,
           descricao: response.data.descricao,
@@ -62,91 +90,88 @@ export const ProjetosEdit = () => {
           upload: null,
         };
 
-        let parsedEstilo = {};
-        if (response.data.estilo) {
-          try {
-            parsedEstilo = JSON.parse(response.data.estilo);
-          } catch (e) {
-            console.error("Erro ao parsear estilo:", e);
-            parsedEstilo = {};
-          }
-        }
-
-        setProjectCanvasInitialData(parsedEstilo);
-        setCanvasData(parsedEstilo);
+        snapshotRef.current = snapshot;
+        latestTextsRef.current = { ...snapshot.texts };
+        editorIdRef.current = String(id);
+        setCanvasSnapshot(snapshot);
         setProjectData(data);
       } catch (error) {
-        console.error("Erro ao carregar projeto:", error);
+        if (active && !controller.signal.aborted) {
+          snapshotRef.current = null;
+          setLoadError(error.message || "Não foi possível carregar o projeto. Recarregue a página para tentar novamente.");
+        }
       } finally {
-        setIsLoading(false);
+        if (active) setIsLoading(false);
       }
     };
 
     fetchProject();
+    return () => { active = false; controller.abort(); };
+  }, [id]);
+
+  const projectReady = !isLoading && !!projectData && readyForProject(canvasSnapshot, id);
+  const canSave = projectReady && !reconciliationRequired;
+  const getCurrentText = useCallback(key => latestTextsRef.current[key], []);
+  const handleTextChange = useCallback((key, value) => {
+    const snapshot = snapshotRef.current;
+    if (editorIdRef.current !== String(routeIdRef.current) || !CANVAS_FIELDS.includes(key) || typeof value !== "string") return;
+    latestTextsRef.current = { ...latestTextsRef.current, [key]: value };
+    fieldVersionsRef.current.set(key, ++inputVersionRef.current);
+    try {
+      if (snapshot) changesRef.current = recordText(snapshot, changesRef.current, key, value);
+    } catch (error) {
+      setSaveError(error.message);
+    }
   }, []);
 
   const handleSave = useCallback(() => {
-    if (!isSubmitting && !submittingRef.current && projectFormRef.current) {
+    if (canSave && !isSubmitting && !submittingRef.current && projectFormRef.current) {
       projectFormRef.current.requestSubmit();
     }
-  }, [isSubmitting]);
+  }, [canSave, isSubmitting]);
 
   const onSubmit = useCallback(
     async (formData) => {
-      // Bloqueia envios repetidos antes de o React atualizar os botoes.
       if (submittingRef.current) return;
+      if (!canSave || !readyForProject(snapshotRef.current, routeIdRef.current) || String(id) !== String(routeIdRef.current)) {
+        setSaveError("Aguarde o carregamento completo do projeto correto antes de salvar.");
+        return;
+      }
       submittingRef.current = true;
       setIsSubmitting(true);
+      setSaveError("");
       try {
-
-        formData.append(
-          "justificativas",
-          canvasData?.["justificativas"]?.textarea_value ?? ""
-        );
-        formData.append("objsmart", canvasData?.["objsmart"]?.textarea_value ?? "");
-        formData.append("beneficios", canvasData?.["beneficios"]?.textarea_value ?? "");
-        formData.append("produto", canvasData?.["produto"]?.textarea_value ?? "");
-        formData.append("requisitos", canvasData?.["requisitos"]?.textarea_value ?? "");
-        formData.append(
-          "stakeholders",
-          canvasData?.["stakeholders"]?.textarea_value ?? ""
-        );
-        formData.append("equipe", canvasData?.["equipe"]?.textarea_value ?? "");
-        formData.append("premissas", canvasData?.["premissas"]?.textarea_value ?? "");
-        formData.append(
-          "grupo_de_entrega",
-          canvasData?.["grupo_de_entrega"]?.textarea_value ?? ""
-        );
-        formData.append("restricoes", canvasData?.["restricoes"]?.textarea_value ?? "");
-        formData.append("riscos", canvasData?.["riscos"]?.textarea_value ?? "");
-        formData.append(
-          "linha_do_tempo",
-          canvasData?.["linha_do_tempo"]?.textarea_value ?? ""
-        );
-        formData.append("custos", canvasData?.["custos"]?.textarea_value ?? "");
-        
-        const cleanCanvasData = Object.entries(canvasData || {}).reduce(
-          (acc, [key, widget]) => {
-            acc[key] = {
-              x: widget.x,
-              y: widget.y,
-              w: widget.w,
-              h: widget.h,
-              textarea_value: widget.textarea_value || "",
-            };
-            return acc;
-          },
-          {}
-        );
-
-        formData.append("estilo", JSON.stringify(cleanCanvasData));
-
-        const response = await api.put(`/projetos/${id}`, formData, {
+        const submittedChanges = changesRef.current;
+        const submittedVersion = inputVersionRef.current;
+        const previousSnapshot = snapshotRef.current;
+        const payload = buildProjectPayload(formData, snapshotRef.current, submittedChanges, id);
+        const response = await api.put(`/projetos/${id}`, payload, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
         });
 
+        if (String(routeIdRef.current) !== String(id)) return;
+        const editedAfterRequest = new Set([...fieldVersionsRef.current]
+          .filter(([, version]) => version > submittedVersion).map(([key]) => key));
+        let reconciled;
+        try {
+          reconciled = reconcileCanvasResponse(response.data, previousSnapshot, submittedChanges,
+            latestTextsRef.current, editedAfterRequest, id);
+        } catch (error) {
+          snapshotRef.current = null;
+          setReconciliationRequired(true);
+          setSaveError(error.message);
+          return;
+        }
+        snapshotRef.current = reconciled.snapshot;
+        latestTextsRef.current = reconciled.texts;
+        changesRef.current = reconciled.changes;
+        setCanvasSnapshot(reconciled.snapshot);
+        if (editedAfterRequest.size) {
+          setSaveError("O envio foi confirmado. Os novos textos digitados durante a operação foram mantidos e comparados com a revisão salva; salve novamente para gravar as alterações pendentes.");
+          return;
+        }
         toast({
           title: "Projeto atualizado com sucesso.",
           variant: "success",
@@ -154,9 +179,13 @@ export const ProjetosEdit = () => {
 
         navigate("/projetos");
       } catch (error) {
-        const errorMessage =
-          error.response?.data?.message ||
-          "Erro ao atualizar projeto. Tente novamente.";
+        if (String(routeIdRef.current) !== String(id)) return;
+        if (!error.response || [409, 428].includes(error.response.status) || error.response.data?.code === "PROJECT_COMMIT_UNKNOWN") {
+          snapshotRef.current = null;
+          setReconciliationRequired(true);
+        }
+        const errorMessage = projectSaveError(error);
+        setSaveError(errorMessage);
 
         toast({
           title: errorMessage,
@@ -167,7 +196,7 @@ export const ProjetosEdit = () => {
         setIsSubmitting(false);
       }
     },
-    [canvasData, id, navigate, toast]
+    [canSave, id, navigate, toast]
   );
 
   return (
@@ -208,7 +237,7 @@ export const ProjetosEdit = () => {
               className="bg-green-500 text-white font-bold hover:text-white hover:bg-green-600"
               variant="outline"
               onClick={handleSave}
-              disabled={isSubmitting}
+              disabled={isSubmitting || !canSave}
             >
               <CheckCircleIcon className="mr-2" size="20" />
               {isSubmitting ? "Salvando..." : "Salvar"}
@@ -284,21 +313,25 @@ export const ProjetosEdit = () => {
             className="bg-green-500 text-white font-bold hover:text-white hover:bg-green-600"
             variant="outline"
             onClick={handleSave}
-            disabled={isSubmitting}
+            disabled={isSubmitting || !canSave}
           >
             <CheckCircleIcon className="mr-2" size="20" />
             {isSubmitting ? "Salvando..." : "Salvar"}
           </Button>
         </div>
       )}
+      {loadError && <Alert role="alert"><AlertTitle>Projeto não carregado</AlertTitle><AlertDescription>{loadError}</AlertDescription></Alert>}
+      {saveError && <Alert role="alert"><AlertTitle>Atualização não confirmada</AlertTitle><AlertDescription>{saveError}</AlertDescription></Alert>}
       <div className="mt-5">
+        {isLoading && <p role="status">Carregando projeto...</p>}
         <div style={{ display: layout === "infosGerais" ? "block" : "none" }}>
-          <ProjetosForm
+          {projectReady && <ProjetosForm
+            key={String(canvasSnapshot.raw.id)}
             ref={projectFormRef}
             onSubmit={onSubmit}
             isSubmitting={isSubmitting}
             formData={projectData}
-          />
+          />}
         </div>
         <div style={{ display: layout === "projectCanvas" ? "block" : "none" }}>
           {isMobile ? (
@@ -311,12 +344,17 @@ export const ProjetosEdit = () => {
               </AlertDescription>
             </Alert>
           ) : (
-            projectCanvasInitialData !== undefined && (
+            projectReady && (canvasSnapshot.editable ? (
               <ProjetosProjectCanvas
+                key={String(canvasSnapshot.raw.id)}
                 setCanvasData={setCanvasData}
-                initialData={projectCanvasInitialData}
+                initialData={canvasSnapshot.display}
+                onTextChange={handleTextChange}
+                getCurrentText={getCurrentText}
               />
-            )
+            ) : (
+              <Alert role="status"><AlertTitle>Canvas preservado</AlertTitle><AlertDescription>{canvasSnapshot.reason}</AlertDescription></Alert>
+            ))
           )}
         </div>
       </div>
