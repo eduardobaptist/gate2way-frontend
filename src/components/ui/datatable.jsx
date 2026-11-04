@@ -162,7 +162,7 @@ export function DataTable() {
                 column.getIsSorted() ? "font-bold" : ""
               }`}
             >
-              Email
+              E-mail
               <ArrowUpDown className="ml-2 h-4 w-4" />
             </Button>
           </div>
@@ -292,7 +292,7 @@ export function DataTable() {
 
   // Filter options for the dropdown
   const filterableColumns = [
-    { value: "email", label: "Email" },
+    { value: "email", label: "E-mail" },
     { value: "name", label: "Nome" },
     { value: "status", label: "Status" },
   ];
