@@ -132,16 +132,17 @@ export function Login() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-gray-700">E-mail</FormLabel>
-                      <FormControl>
-                        <div className="relative">
-                          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
+                      {/* UX-14: o label aponta para o input; o wrapper mantém os ícones. */}
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
+                        <FormControl>
                           <Input
                             type="email"
                             className="bg-white border-slate-200 focus:border-purple-600 focus:ring-purple-600"
                             {...field}
                           />
-                        </div>
-                      </FormControl>
+                        </FormControl>
+                      </div>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -155,30 +156,31 @@ export function Login() {
                       <div className="flex items-center justify-between">
                         <FormLabel className="text-gray-700">Senha</FormLabel>
                       </div>
-                      <FormControl>
-                        <div className="relative">
-                          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
+                        <FormControl>
                           <Input
                             type={showPassword ? "text" : "password"}
                             className="pr-10 bg-white border-slate-200 focus:border-purple-600 focus:ring-purple-600"
                             {...field}
                           />
-                          <button
-                            type="button"
-                            onClick={togglePasswordVisibility}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                            aria-label={
-                              showPassword ? "Esconder senha" : "Mostrar senha"
-                            }
-                          >
-                            {showPassword ? (
-                              <EyeOff className="h-4 w-4" />
-                            ) : (
-                              <Eye className="h-4 w-4" />
-                            )}
-                          </button>
-                        </div>
-                      </FormControl>
+                        </FormControl>
+                        <button
+                          type="button"
+                          onClick={togglePasswordVisibility}
+                          aria-pressed={showPassword}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                          aria-label={
+                            showPassword ? "Esconder senha" : "Mostrar senha"
+                          }
+                        >
+                          {showPassword ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
+                        </button>
+                      </div>
                       <FormMessage />
                     </FormItem>
                   )}

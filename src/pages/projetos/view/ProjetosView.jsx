@@ -59,7 +59,7 @@ export const ProjetosView = () => {
           // { value: "historico", label: "Histórico" },
         ]
       : []),
-    { value: "canvas", label: "Project canvas" },
+    { value: "canvas", label: "Canvas do projeto" },
   ];
 
   const fetchProjeto = async () => {
@@ -271,7 +271,7 @@ export const ProjetosView = () => {
                   <Monitor className="h-4 w-4" />
                   <AlertTitle>Visualização não disponível</AlertTitle>
                   <AlertDescription>
-                    O Project Canvas não pode ser visualizado em dispositivos móveis. 
+                    O Canvas do projeto não pode ser visualizado em dispositivos móveis.
                     Por favor, acesse através de um computador ou tablet para utilizar esta funcionalidade.
                   </AlertDescription>
                 </Alert>
